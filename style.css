@@ -1,0 +1,155 @@
+:root {
+    --color-fondo-pagina: #2c3e50;      
+    --color-fondo-rectangulo: #ffffff;  
+    --color-botones: #3498db;           
+    --color-texto: #333333;             
+    --fuente-bienvenido: 'Georgia', serif; 
+    --fuente-general: 'Arial', sans-serif; 
+}
+
+/* ========================================== */
+/*           ESTILOS GLOBALES                 */
+/* ========================================== */
+body {
+    background-color: var(--color-fondo-pagina);
+    font-family: var(--fuente-general);
+    color: var(--color-texto);
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; 
+}
+
+/* Clases específicas para los fondos de los paneles */
+body.bg-admin {
+    background-color: #5c5365; /* Morado grisáceo */
+}
+
+body.bg-encargado {
+    background-color: #722f37; /* Rojo vino */
+}
+
+/* ========================================== */
+/*          PÁGINA DE INICIO (LOGIN)          */
+/* ========================================== */
+.contenedor-principal {
+    width: 100%;
+    max-width: 500px;
+    transform: translateY(-10%); 
+}
+
+.caja-interfaz {
+    background-color: var(--color-fondo-rectangulo);
+    padding: 50px 40px; 
+    border-radius: 10px; 
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2); 
+    text-align: center; 
+}
+
+.titulo-bienvenida {
+    font-family: var(--fuente-bienvenido);
+    font-size: 30px;
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.subtitulo {
+    margin-bottom: 25px;
+    color: #555;
+}
+
+button {
+    width: 100%;
+    background-color: var(--color-botones);
+    color: white;
+    border: none;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 15px;
+    transition: background-color 0.3s;
+}
+
+button:hover { filter: brightness(0.9); }
+button:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+.btn-secundario { background-color: #7f8c8d; }
+.espacio-botones { margin-top: 35px; }
+
+form { text-align: left; }
+
+label {
+    display: block;
+    margin-top: 15px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+input[type="email"], input[type="text"], input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box; 
+}
+
+.seccion-oculta { display: none; }
+.seccion-activa {
+    display: block;
+    animation: aparecerSuave 0.4s ease-out forwards;
+}
+
+@keyframes aparecerSuave {
+    0% { opacity: 0; transform: translateY(-20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ========================================== */
+/*        PANELES GENÉRICOS (ADMIN/ENC)       */
+/* ========================================== */
+body.layout-panel {
+    display: block; /* Quita el centrado forzado del login */
+    color: white;
+}
+
+.barra-superior {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 15px 30px;
+}
+
+.barra-superior h2 {
+    margin: 0;
+    font-family: var(--fuente-bienvenido);
+}
+
+.badge-rol {
+    background: rgba(255, 255, 255, 0.2);
+    font-size: 14px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-left: 10px;
+    font-family: var(--fuente-general);
+}
+
+.btn-salir {
+    width: auto;
+    margin: 0;
+    background-color: #e74c3c;
+}
+
+.contenido-panel {
+    padding: 40px;
+}
+
+.tarjeta-trabajo {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 30px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
