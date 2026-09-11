@@ -3,27 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[Nombre Genérico] - Administrador</title>
+    <title>Admin - [Nombre Genérico]</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-admin layout-panel">
+<body class="dashboard-layout">
 
-    <header class="barra-superior">
-        <h2>[Nombre Genérico] <span class="badge-rol">Administrador</span></h2>
-        <button onclick="cerrarSesion()" class="btn-salir">Cerrar Sesión</button>
+    <!-- Cabecera (Lengüeta) -->
+    <header class="cabecera-dashboard">
+        <div class="cabecera-izquierda">
+            <h1 class="cabecera-titulo">Admin</h1>
+        </div>
+        
+        <div class="cabecera-derecha perfil-contenedor">
+            <!-- Botón redondo -->
+            <button class="btn-perfil" onclick="toggleMenuPerfil()">A</button>
+            
+            <!-- Menú desplegable -->
+            <div id="menu-perfil" class="menu-desplegable">
+                <button onclick="irConfiguraciones()">Configuraciones</button>
+                <button onclick="cerrarSesion()">Cerrar sesión</button>
+            </div>
+        </div>
     </header>
 
-    <main class="contenido-panel">
-        <h1>Panel de Control Principal</h1>
-        <p>Esta es tu página genérica. Aquí puedes empezar a agregar tablas, gráficos o listas de usuarios.</p>
-        
-        <!-- Área de trabajo en blanco para el administrador -->
-        <div class="tarjeta-trabajo">
-            <h3>Sección editable</h3>
-            <p>Agrega contenido aquí...</p>
-        </div>
+    <!-- Contenido Principal -->
+    <main class="contenido-dashboard">
+        <h2>Panel de Control</h2>
+        <p>Esta es tu página base en blanco. Aquí comenzarás a construir las tablas y herramientas del administrador.</p>
     </main>
 
-    <script src="script.js"></script>
+    <!-- Enlace exclusivo a la lógica del administrador -->
+    <script src="script_admin.js"></script>
 </body>
 </html>

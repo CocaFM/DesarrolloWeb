@@ -10,6 +10,7 @@
     <div class="contenedor-principal">
         <div class="caja-interfaz">
             
+            <!-- Menú Principal -->
             <div id="menu-principal" class="seccion-activa">
                 <h2 class="titulo-bienvenida">Bienvenido a [Nombre Genérico]</h2>
                 <p class="subtitulo">Seleccione cómo desea ingresar:</p>
@@ -20,6 +21,7 @@
                 <button onclick="mostrarRegistro()" class="btn-secundario">Crea tu cuenta</button>
             </div>
 
+            <!-- Sección Login -->
             <div id="seccion-login" class="seccion-oculta">
                 <h3 id="titulo-login">Iniciar Sesión</h3>
                 <form id="form-login" onsubmit="procesarLogin(event)">
@@ -38,6 +40,7 @@
                 </form>
             </div>
 
+            <!-- Sección Registro -->
             <div id="seccion-registro" class="seccion-oculta">
                 <h2 class="titulo-bienvenida">Crea tu cuenta</h2>
                 <form id="form-registro" onsubmit="procesarRegistro(event)">
@@ -59,6 +62,7 @@
                     </div>
                 </form>
             </div>
+            
         </div>
     </div>
     <script src="script.js"></script>

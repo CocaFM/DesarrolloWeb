@@ -21,7 +21,6 @@ body {
     min-height: 100vh; 
 }
 
-/* Clases específicas para los fondos de los paneles */
 body.bg-admin {
     background-color: #5c5365; /* Morado grisáceo */
 }
@@ -95,6 +94,132 @@ input[type="email"], input[type="text"], input[type="password"] {
     box-sizing: border-box; 
 }
 
+/* ========================================== */
+/*        PANELES GENÉRICOS Y CABECERAS       */
+/* ========================================== */
+body.layout-panel {
+    display: block; 
+    color: white;
+}
+
+body.dashboard-layout {
+    background-color: #f4f6f8; 
+    display: block; 
+    color: #333;
+}
+
+.barra-superior, .cabecera-dashboard {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #4b3f72; 
+    color: white;
+    padding: 15px 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cabecera-titulo {
+    font-size: 22px;
+    margin: 0;
+    font-family: var(--fuente-bienvenido);
+}
+
+.cabecera-izquierda {
+    display: flex;
+    align-items: center;
+}
+
+/* ========================================== */
+/*           MENÚ DE PERFIL Y BOTONES         */
+/* ========================================== */
+.perfil-contenedor {
+    position: relative;
+}
+
+.btn-perfil {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background-color: white;
+    color: #4b3f72;
+    border: none;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+}
+
+.btn-perfil:hover {
+    transform: scale(1.1); 
+    background-color: #e0e0e0;
+}
+
+.menu-desplegable {
+    display: none;
+    position: absolute;
+    top: 60px;
+    right: 0;
+    background-color: white;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 10;
+}
+
+.menu-desplegable.activo {
+    display: block;
+    animation: aparecerSuave 0.2s ease-out forwards;
+}
+
+.menu-desplegable button {
+    background-color: transparent;
+    color: #333;
+    text-align: left;
+    padding: 15px 20px;
+    border-radius: 0;
+    margin: 0;
+    font-size: 14px;
+}
+
+.menu-desplegable button:hover {
+    background-color: #f1f1f1;
+    filter: none;
+}
+
+/* ========================================== */
+/*        NAVEGACIÓN INTERNA Y TABLAS         */
+/* ========================================== */
+.ruta-pequena, .subtitulo-dinamico {
+    font-size: 16px;
+    font-weight: normal;
+    opacity: 0.8;
+}
+
+.btn-atras {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    margin-right: 15px;
+    transition: transform 0.2s;
+    padding: 0;
+    width: auto;
+}
+
+.btn-atras:hover {
+    transform: translateX(-5px);
+    background: none;
+}
+
+.oculto { display: none !important; }
+.activo { display: block; }
 .seccion-oculta { display: none; }
 .seccion-activa {
     display: block;
@@ -106,43 +231,7 @@ input[type="email"], input[type="text"], input[type="password"] {
     100% { opacity: 1; transform: translateY(0); }
 }
 
-/* ========================================== */
-/*        PANELES GENÉRICOS (ADMIN/ENC)       */
-/* ========================================== */
-body.layout-panel {
-    display: block; /* Quita el centrado forzado del login */
-    color: rgb(255, 255, 255);
-}
-
-.barra-superior {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: rgba(0, 0, 0, 0.3);
-    padding: 15px 30px;
-}
-
-.barra-superior h2 {
-    margin: 0;
-    font-family: var(--fuente-bienvenido);
-}
-
-.badge-rol {
-    background: rgba(255, 255, 255, 0.2);
-    font-size: 14px;
-    padding: 5px 10px;
-    border-radius: 5px;
-    margin-left: 10px;
-    font-family: var(--fuente-general);
-}
-
-.btn-salir {
-    width: auto;
-    margin: 0;
-    background-color: #e74c3c;
-}
-
-.contenido-panel {
+.contenido-panel, .contenido-dashboard {
     padding: 40px;
 }
 
@@ -152,4 +241,78 @@ body.layout-panel {
     padding: 30px;
     border-radius: 8px;
     margin-top: 20px;
+}
+
+body.dashboard-layout .tarjeta-trabajo {
+    background-color: white;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.tabla-datos {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    background-color: white;
+    color: #333;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.tabla-datos th, .tabla-datos td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.tabla-datos th {
+    background-color: #4b3f72;
+    color: white;
+}
+
+/* ========================================== */
+/*        GRILLA DE BOTONES (ENCARGADO)       */
+/* ========================================== */
+.grilla-botones {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    /* Primer número: distancia vertical. Segundo número: distancia horizontal */
+    gap: 100px 90px; 
+    margin-top: 50px;
+    max-width: 1250px; /* Evita que los botones absorban toda la pantalla en monitores anchos */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.item-grilla {
+    text-align: left; 
+}
+
+.item-grilla p {
+    margin-top: 10px;
+    font-weight: bold;
+    font-size: 18px;
+    margin-left: 3px; 
+}
+
+.btn-cuadro {
+    width: 100%;
+    /* Hace que el botón sea un rectángulo proporcional (más ancho que alto) */
+    aspect-ratio: 5 / 3; 
+    background-color: var(--color-botones);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    /* Contain permite que el logo se ajuste sin cortarse. No-repeat evita que se duplique */
+    background-size: contain; 
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.btn-cuadro:hover {
+    transform: translateY(-5px);
+    background-color: #2980b9;
 }

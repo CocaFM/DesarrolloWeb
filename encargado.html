@@ -3,27 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[Nombre Genérico] - Encargado</title>
+    <title>Encargado - [Nombre Genérico]</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-encargado layout-panel">
 
-    <header class="barra-superior">
-        <h2>[Nombre Genérico] <span class="badge-rol">Encargado</span></h2>
-        <button onclick="cerrarSesion()" class="btn-salir">Cerrar Sesión</button>
+    <!-- Cabecera Superior -->
+    <header class="cabecera-dashboard">
+        <div class="cabecera-izquierda">
+            <button id="btn-volver" class="btn-atras oculto" onclick="volverAlMenu()" title="Volver al menú principal">
+                <!-- SVG de Casa Abstracta -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icono-casa" style="width: 24px; height: 24px; margin-top: 4px;">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+            </button>
+            <h1 class="cabecera-titulo">Encargado<span id="texto-ruta" class="ruta-pequena"></span></h1>
+        </div>
+        
+        <div class="cabecera-derecha perfil-contenedor">
+            <button class="btn-perfil" onclick="toggleMenuPerfil()" title="Perfil del Encargado">E</button>
+            <div id="menu-perfil" class="menu-desplegable">
+                <button onclick="irConfiguraciones()">Configuraciones</button>
+                <button onclick="cerrarSesion()">Cerrar sesión</button>
+            </div>
+        </div>
     </header>
 
-    <main class="contenido-panel">
-        <h1>Área de Gestión</h1>
-        <p>Esta es tu página genérica. Aquí puedes empezar a agregar formularios de inventario o tareas.</p>
-        
-        <!-- Área de trabajo en blanco para el encargado -->
-        <div class="tarjeta-trabajo">
-            <h3>Sección editable</h3>
-            <p>Agrega contenido aquí...</p>
+    <!-- MENÚ PRINCIPAL -->
+    <main id="menu-principal-encargado" class="contenido-panel activo">
+        <div class="grilla-botones">
+            <div class="item-grilla">
+                <button class="btn-cuadro" onclick="abrirSeccion('sec-estados', 'Estados del PC')"></button>
+                <p>Estados del PC</p>
+            </div>
+            <div class="item-grilla">
+                <button class="btn-cuadro" onclick="abrirSeccion('sec-agregar-cliente', 'Agregar Cliente')"></button>
+                <p>Agregar Cliente</p>
+            </div>
+            <div class="item-grilla">
+                <button class="btn-cuadro" onclick="abrirSeccion('sec-estado-acompanantes', 'Estado de Acompañantes')"></button>
+                <p>Estado de Acompañantes</p>
+            </div>
+            <div class="item-grilla">
+                <button class="btn-cuadro" onclick="abrirSeccion('sec-historial', 'Historial')"></button>
+                <p>Historial</p>
+            </div>
+            <div class="item-grilla">
+                <button class="btn-cuadro" onclick="abrirSeccion('sec-agregar-servicio', 'Agregar Servicio Adicional')"></button>
+                <p>Agregar Servicio Adicional</p>
+            </div>
+            <div class="item-grilla">
+                <button class="btn-cuadro" onclick="abrirSeccion('sec-consultar-registro', 'Consultar Registro')"></button>
+                <p>Consultar Registro</p>
+            </div>
+            <div class="item-grilla">
+                <button class="btn-cuadro" onclick="abrirSeccion('sec-cierre-caja', 'Cierre de Caja')"></button>
+                <p>Cierre de Caja</p>
+            </div>
         </div>
     </main>
 
-    <script src="script.js"></script>
+    <!-- ========================================================== -->
+    <!--          SUBPÁGINAS INDIVIDUALES                           -->
+    <!-- ========================================================== -->
+
+    <!-- 1. Estados del PC -->
+    <section id="sec-estados" class="contenido-panel seccion-funcional oculto">
+        <div class="tarjeta-trabajo">
+            <h2>Monitoreo de Equipos</h2>
+            <div style="display: flex; gap: 15px; margin-top: 20px; flex-wrap: wrap;" id="contenedor-pcs">
+                <!-- Se llenará con JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. Agregar Cliente -->
+    <section id="sec-agregar-cliente" class="contenido-panel seccion-funcional oculto">
+        <div class="tarjeta-trabajo">
+            <h2>Registrar Nuevo Cliente</h2>
+            <form id="form-cliente" onsubmit="guardarClienteTemporal(event)">
+                <label>Nombre del Cliente:</label>
+                <input type="text" id="nombre-cli" required placeholder="Nombre completo">
+                
+                <label>PC a utilizar:</label>
+                <select id="pc-cli" style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; border-radius: 5px;" required>
+                    <option value="PC 01">PC 01</option>
+                    <option value="PC 02">PC 02</option>
+                    <option value="PC 03">PC 03</option>
+                    <option value="PC 04">PC 04</option>
+                </select>
+
+                <label>Horas solicitadas:</label>
+                <input type="number" id="horas-cli" required min="1" placeholder="Ej. 2">
+                
+                <label>Acompañante (Gato):</label>
+                <select id="gato-cli" style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; border-radius: 5px;">
+                    <option value="">Ninguno</option>
+                    <!-- Las opciones de gatos se cargarán con JS -->
+                </select>
+
+                <label>Servicio Adicional:</label>
+                <input type="text" id="servicio-cli" placeholder="Bebida, snack, impresión...">
+                
+                <label>Monto a Pagar ($):</label>
+                <input type="number" id="monto-cli" required min="0" placeholder="Ej. 5000">
+
+                <div class="espacio-botones">
+                    <button type="submit">Guardar Registro Temporal</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- 3. Estado de Acompañantes -->
+    <section id="sec-estado-acompanantes" class="contenido-panel seccion-funcional oculto">
+        <div class="tarjeta-trabajo">
+            <h2>Gestión de Gatos Acompañantes</h2>
+            <table class="tabla-datos">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Tipo/Raza</th>
+                        <th>Llegada</th>
+                        <th>Horario</th>
+                        <th>Estado</th>
+                        <th>Asignación Actual</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpo-gatos">
+                    <!-- Los datos se insertarán con JS -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- 4. Historial -->
+    <section id="sec-historial" class="contenido-panel seccion-funcional oculto">
+        <div class="tarjeta-trabajo">
+            <h2>Historial de la Sesión</h2>
+            <table class="tabla-datos">
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>PC</th>
+                        <th>Acompañante</th>
+                        <th>Horas</th>
+                        <th>Monto</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpo-historial">
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="sec-agregar-servicio" class="contenido-panel seccion-funcional oculto">
+        <div class="tarjeta-trabajo"><h2>Catálogo de Servicios Adicionales</h2></div>
+    </section>
+
+    <section id="sec-consultar-registro" class="contenido-panel seccion-funcional oculto">
+        <div class="tarjeta-trabajo"><h2>Agenda y Reservas</h2></div>
+    </section>
+
+    <!-- 7. Cierre de Caja -->
+    <section id="sec-cierre-caja" class="contenido-panel seccion-funcional oculto">
+        <div class="tarjeta-trabajo">
+            <h2>Resumen y Balance del Día</h2>
+            <div style="font-size: 18px; margin: 20px 0;">
+                <p><strong>Total de Clientes Atendidos:</strong> <span id="total-clientes">0</span></p>
+                <p><strong>Recaudación Total:</strong> $<span id="total-ingresos">0</span></p>
+            </div>
+            <button class="btn-secundario" onclick="alert('Caja cerrada con éxito.')">Finalizar Cierre de Caja</button>
+        </div>
+    </section>
+
+    <script src="script_encargado.js"></script>
 </body>
 </html>

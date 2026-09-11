@@ -33,14 +33,11 @@ function procesarLogin(evento) {
     const password = document.getElementById('password-login').value;
 
     if (correo === "coca123@ds.com" && password === "123") {
-        
-        // Redirección real que cambia la URL en el navegador
         if (rol === 'administrador') {
             window.location.href = 'admin.html';
         } else if (rol === 'encargado') {
             window.location.href = 'encargado.html';
         }
-        
     } else {
         alert("Acceso denegado: El correo electrónico o la contraseña son incorrectos.");
     }
@@ -59,8 +56,4 @@ function procesarRegistro(evento) {
 
     alert(`¡Cuenta creada con éxito! Ahora puedes iniciar sesión.`);
     volverMenu();
-}
-
-function cerrarSesion() {
-    window.location.href = 'index.html';
 }
