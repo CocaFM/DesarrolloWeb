@@ -110,7 +110,8 @@ function guardarClienteTemporal(evento) {
         pc: pcSelect,
         gato: nombreGato || 'Sin acompañante',
         horas: horas,
-        monto: parseFloat(monto) || 0
+        monto: parseFloat(monto) || 0,
+        activo: true // <-- Corrección: Se agregó la coma en la línea anterior
     });
 
     alert(`Cliente registrado. PC asignado: ${pcSelect}.`);
@@ -145,10 +146,20 @@ function actualizarVistaPCs() {
     estadoPCs.forEach(pc => {
         let colorFondo = pc.estado === 'Disponible' ? 'rgba(46, 204, 113, 0.2)' : (pc.estado === 'Ocupado' ? 'rgba(231, 76, 60, 0.2)' : 'rgba(241, 196, 15, 0.2)');
         let circulo = pc.estado === 'Disponible' ? '🟢' : (pc.estado === 'Ocupado' ? '🔴' : '🟡');
+        let boton = '';
+
+        if(pc.estado === "Ocupado"){
+            const cliente = registroClientes.find(c => c.pc === pc.id && c.activo);
+            const gato = cliente ? cliente.gato : '';
+            // <-- Corrección: Se cambió gatoAsignado por gato
+            boton = `<button class="btn-secundario" style="margin-top: 10px; padding: 6px 12px; border-radius: 5px; color: white; border: none; cursor: pointer; font-size: 13px;" onclick="terminarSesion('${pc.id}', '${gato}')">Terminar Sesión</button>`;
+        }
         
+        // <-- Corrección: Se agregó el botón a la estructura y se centró el contenido
         contenedor.innerHTML += `
-            <div style="background: ${colorFondo}; padding: 15px 25px; border-radius: 8px; font-weight: bold;">
-                ${circulo} ${pc.id}: ${pc.estado}
+            <div style="background: ${colorFondo}; padding: 15px 25px; border-radius: 8px; font-weight: bold; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                <span>${circulo} ${pc.id}: ${pc.estado}</span>
+                ${boton}
             </div>
         `;
     });
@@ -160,13 +171,14 @@ function actualizarTablaHistorial() {
 
     registroClientes.forEach(cliente => {
         const fila = document.createElement('tr');
+        const estadoTexto = cliente.activo ? '<span style="color: green; font-weight: bold;">Activo</span>' : '<span style="color: gray; font-weight: bold;">Finalizado</span>';
         fila.innerHTML = `
             <td>${cliente.nombre}</td>
             <td>${cliente.pc}</td>
             <td>${cliente.gato}</td>
             <td>${cliente.horas} hr(s)</td>
             <td>$${cliente.monto.toLocaleString()}</td>
-            <td><button class="btn-secundario" style="padding: 6px; font-size: 12px;" onclick="terminarSesion('${cliente.pc}', '${cliente.gato}')">Terminar Sesión</button></td>
+            <td>${estadoTexto}</td>
         `;
         cuerpoTabla.appendChild(fila);
     });
@@ -177,6 +189,36 @@ function actualizarCierreCaja() {
     const ingresosTotales = registroClientes.reduce((suma, cliente) => suma + cliente.monto, 0);
     document.getElementById('total-clientes').innerText = totalClientes;
     document.getElementById('total-ingresos').innerText = ingresosTotales.toLocaleString();
+}
+
+// ==========================================
+// LIBERAR PC Y FINALIZAR SESIÓN
+// ==========================================
+function terminarSesion(pc, gato){
+    const pcIndex = estadoPCs.findIndex(p => p.id === pc);
+    const clienteIndex = registroClientes.findIndex(c => c.pc === pc && c.activo);
+
+    if(clienteIndex !== -1){
+        registroClientes[clienteIndex].activo = false; // <-- Corrección: false en lugar de falseM
+    }
+    
+    if(pcIndex !== -1){
+        estadoPCs[pcIndex].estado = 'Disponible';
+    }
+
+    if(gato && gato !== 'Sin acompañante'){
+        const gatoIndex = estadoGatos.findIndex(g => g.nombre === gato);
+
+        if(gatoIndex !== -1){
+            estadoGatos[gatoIndex].estado = 'Disponible';
+            estadoGatos[gatoIndex].asignacion = 'Ninguna';
+        }
+    }
+
+    alert("Sesión terminada. PC y acompañante liberados.");
+    actualizarVistaPCs();
+    actualizarTablaGatos();
+    cargarOpcionesGatos(); 
 }
 
 // ==========================================
@@ -198,27 +240,5 @@ window.onclick = function(evento) {
     }
 };
 
-function terminarSesion(pc, gato){
-    const pcIndex = estadoPCs.findIndex(p => p.id === pc);
-    
-    if(pcIndex !==-1){
-        estadoPCs[pcIndex].estado = 'Disponible';
-    }
-
-    if(gato && gato !== 'Sin acompañante'){
-        const gatoIndex = estadoGatos.findIndex(g => g.nombre === gato);
-
-        if(gatoIndex !== -1){
-            estadoGatos[gatoIndex].estado = 'Disponible';
-            estadoGatos[gatoIndex].asignacion = 'Ninguna';
-        }
-    }
-
-    alert("Sesión terminada.");
-    actualizarVistaPCs();
-    actualizarTablaGatos();
-    cargarOpcionesGatos(); 
-
-}
 function cerrarSesion() { window.location.href = 'index.html'; }
 function irConfiguraciones() { alert("Configuraciones del encargado..."); }
