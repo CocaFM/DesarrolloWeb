@@ -295,24 +295,30 @@ body.dashboard-layout .tarjeta-trabajo {
     margin-left: 3px; 
 }
 
-.btn-cuadro {
+[class*="btn-"] {
     width: 100%;
-    /* Hace que el botón sea un rectángulo proporcional (más ancho que alto) */
     aspect-ratio: 5 / 3; 
-    background-color: var(--color-botones);
+    background-color: #2c3e50; 
     color: white;
     border: none;
     border-radius: 10px;
     cursor: pointer;
     transition: transform 0.2s, background-color 0.2s;
     box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-    /* Contain permite que el logo se ajuste sin cortarse. No-repeat evita que se duplique */
-    background-size: contain; 
+    background-size: cover; 
     background-position: center;
     background-repeat: no-repeat;
 }
 
-.btn-cuadro:hover {
+[class*="btn-"]:hover {
     transform: translateY(-5px);
     background-color: #2980b9;
 }
+
+.btn-estados-pc { background-image: url('imagenes/estados-pc.png'); }
+.btn-agregar-cliente { background-image: url('imagenes/agregar-cliente.png'); }
+.btn-acompanantes { background-image: url('imagenes/acompanantes.png'); }
+.btn-historial { background-image: url('imagenes/historial.png'); }
+.btn-agregar-servicio { background-image: url('imagenes/agregar-servicio.png'); }
+.btn-consultar-registro { background-image: url('imagenes/consultar-registro.png'); }
+.btn-cierre-caja { background-image: url('imagenes/cierre-caja.png'); }
