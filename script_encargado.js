@@ -166,6 +166,7 @@ function actualizarTablaHistorial() {
             <td>${cliente.gato}</td>
             <td>${cliente.horas} hr(s)</td>
             <td>$${cliente.monto.toLocaleString()}</td>
+            <td><button class="btn-secundario" style="padding: 6px; font-size: 12px;" onclick="terminarSesion('${cliente.pc}', '${cliente.gato}')">Terminar Sesión</button></td>
         `;
         cuerpoTabla.appendChild(fila);
     });
@@ -197,5 +198,27 @@ window.onclick = function(evento) {
     }
 };
 
+function terminarSesion(pc, gato){
+    const pcIndex = estadoPCs.findIndex(p => p.id === pc);
+    
+    if(pcIndex !==-1){
+        estadoPCs[pcIndex].estado = 'Disponible';
+    }
+
+    if(gato && gato !== 'Sin acompañante'){
+        const gatoIndex = estadoGatos.findIndex(g => g.nombre === gato);
+
+        if(gatoIndex !== -1){
+            estadoGatos[gatoIndex].estado = 'Disponible';
+            estadoGatos[gatoIndex].asignacion = 'Ninguna';
+        }
+    }
+
+    alert("Sesión terminada.");
+    actualizarVistaPCs();
+    actualizarTablaGatos();
+    cargarOpcionesGatos(); 
+
+}
 function cerrarSesion() { window.location.href = 'index.html'; }
 function irConfiguraciones() { alert("Configuraciones del encargado..."); }
