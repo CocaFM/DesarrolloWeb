@@ -315,6 +315,7 @@ body.dashboard-layout .tarjeta-trabajo {
     background-color: #2980b9;
 }
 
+
 .btn-estados-pc { background-image: url('imagenes/estados-pc.png'); }
 .btn-agregar-cliente { background-image: url('imagenes/agregar-cliente.png'); }
 .btn-acompanantes { background-image: url('imagenes/acompanantes.png'); }
@@ -322,3 +323,5 @@ body.dashboard-layout .tarjeta-trabajo {
 .btn-agregar-servicio { background-image: url('imagenes/agregar-servicio.png'); }
 .btn-consultar-registro { background-image: url('imagenes/consultar-registro.png'); }
 .btn-cierre-caja { background-image: url('imagenes/cierre-caja.png'); }
+.btn-cierre-caja-boton { background-image: url('imagenes/cierre-caja-boton.png'); color: black; font-weight: bold; }
+

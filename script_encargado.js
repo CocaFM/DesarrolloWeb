@@ -467,5 +467,195 @@ document.getElementById('horas-extra').addEventListener('input', function() {
     inputMontoExtra.value = horasExtra * TARIFA_POR_HORA;
 });
 
+// ==========================================
+// AGENDA Y RESERVAS
+// ==========================================
+let agendaReservas = [];
+let contadorReservas = 1;
+
+
+document.getElementById('horas-reserva').addEventListener('input', function() {
+    const horas = parseInt(this.value) || 0;
+    const inputMontoReserva = document.getElementById('monto-reserva');
+    inputMontoReserva.value = horas * TARIFA_POR_HORA;
+});
+
+
+function cargarOpcionesPCsReservas() {
+    
+}
+
+function guardarReserva(evento) {
+    evento.preventDefault();
+    const nombre = document.getElementById('nombre-reserva').value;
+    const fecha = document.getElementById('fecha-reserva').value;
+    const horas = parseInt(document.getElementById('horas-reserva').value);
+    const monto = horas * TARIFA_POR_HORA; 
+
+    agendaReservas.push({
+        id: contadorReservas++,
+        nombre: nombre,
+        fecha: fecha,
+        horas: horas,
+        monto: monto,
+        estado: 'Pendiente'
+    });
+
+    alert(`Reserva de ${nombre} agendada correctamente.`);
+    
+    // Reiniciar el formulario
+    document.getElementById('form-reserva').reset();
+    
+    actualizarTablaReservas();
+}
+
+function actualizarTablaReservas() {
+    const cuerpo = document.getElementById('cuerpo-reservas');
+    if(!cuerpo) return;
+    cuerpo.innerHTML = '';
+
+    // Crear las opciones de PCs DISPONIBLES en el momento
+    let opcionesPCsDisponibles = '<option value="">Seleccione PC...</option>';
+    estadoPCs.forEach(pc => {
+        if (pc.estado === 'Disponible') {
+            opcionesPCsDisponibles += `<option value="${pc.id}">${pc.id}</option>`;
+        }
+    });
+
+    // Crear las opciones de GATOS DISPONIBLES en el momento
+    let opcionesGatosDisponibles = '<option value="">Ninguno</option>';
+    estadoGatos.forEach(gato => {
+        if (gato.estado === 'Disponible') {
+            opcionesGatosDisponibles += `<option value="${gato.nombre}">${gato.nombre} (${gato.tipo})</option>`;
+        }
+    });
+
+    agendaReservas.forEach(reserva => {
+        if(reserva.estado !== 'Pendiente') return;
+
+        // Formatear la fecha para mostrarla de manera más legible
+        const fechaFormat = new Date(reserva.fecha).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
+        const fila = document.createElement('tr');
+        
+        fila.innerHTML = `
+            <td><strong>${reserva.nombre}</strong></td>
+            <td>${fechaFormat}</td>
+            <td>${reserva.horas} hr(s)</td>
+            <td>$${reserva.monto.toLocaleString()}</td>
+            <td>
+                <select id="pc-llegada-${reserva.id}" style="width: 100%; padding: 8px; border-radius: 5px;">
+                    ${opcionesPCsDisponibles}
+                </select>
+            </td>
+            <td>
+                <select id="gato-llegada-${reserva.id}" style="width: 100%; padding: 8px; border-radius: 5px;">
+                    ${opcionesGatosDisponibles}
+                </select>
+            </td>
+            <td style="display: flex; gap: 5px;">
+                <button onclick="activarReserva(${reserva.id})" style="background-color: #2ecc71; padding: 8px; border: none; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; flex: 1;">Iniciar</button>
+                <button onclick="cancelarReserva(${reserva.id})" style="background-color: #e74c3c; padding: 8px; border: none; border-radius: 5px; color: white; cursor: pointer; font-weight: bold; flex: 1;">Cancelar</button>
+            </td>
+        `;
+        cuerpo.appendChild(fila);
+    });
+}
+
+
+function cancelarReserva(id) {
+    const reservaIndex = agendaReservas.findIndex(r => r.id === id);
+    if(reservaIndex === -1) return;
+    
+    const reserva = agendaReservas[reservaIndex];
+
+    if (confirm(`¿Estás seguro de que deseas cancelar la reserva de ${reserva.nombre}?`)) {
+        
+        agendaReservas[reservaIndex].estado = 'Cancelada';
+        
+        
+        actualizarTablaReservas();
+        
+        alert(`La reserva de ${reserva.nombre} ha sido cancelada.`);
+    }
+}
+
+function activarReserva(id) {
+    const reservaIndex = agendaReservas.findIndex(r => r.id === id);
+    if(reservaIndex === -1) return;
+    
+    const reserva = agendaReservas[reservaIndex];
+    
+    const selectPC = document.getElementById(`pc-llegada-${reserva.id}`);
+    const pcSeleccionado = selectPC.value;
+
+    const selectGato = document.getElementById(`gato-llegada-${reserva.id}`);
+    const gatoSeleccionado = selectGato.value;
+
+    if (!pcSeleccionado) {
+        alert("Por favor, asigne un PC disponible antes de iniciar la sesión.");
+        return;
+    }
+
+    const pcIndex = estadoPCs.findIndex(p => p.id === pcSeleccionado);
+
+    if (pcIndex !== -1) {
+        // Verificación de disponibilidad del PC seleccionado
+        if (estadoPCs[pcIndex].estado !== 'Disponible') {
+            alert(`El ${pcSeleccionado} ya fue ocupado. Seleccione otro.`);
+            return;
+        }
+
+        // Verificación de disponibilidad del gato seleccionado
+        if (gatoSeleccionado !== "") {
+            const indexGatoVerificar = estadoGatos.findIndex(g => g.nombre === gatoSeleccionado);
+            if (indexGatoVerificar !== -1 && estadoGatos[indexGatoVerificar].estado !== 'Disponible') {
+                alert(`El acompañante ${gatoSeleccionado} ya no está disponible. Seleccione otro.`);
+                return;
+            }
+        }
+
+        if(confirm(`¿Deseas iniciar la sesión de ${reserva.nombre} en el ${pcSeleccionado} por ${reserva.horas} hora(s)?`)) {
+            
+            const ahora = Date.now();
+            const horaRegistroStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            // Actualizar estado del Gato (si se eligió uno)
+            let nombreAcompanante = 'Sin acompañante';
+            if (gatoSeleccionado !== "") {
+                const gatoIndex = estadoGatos.findIndex(g => g.nombre === gatoSeleccionado);
+                if (gatoIndex !== -1) {
+                    estadoGatos[gatoIndex].estado = 'Ocupado';
+                    estadoGatos[gatoIndex].asignacion = `Cliente: ${reserva.nombre} | ${pcSeleccionado}`;
+                    nombreAcompanante = gatoSeleccionado;
+                }
+            }
+
+            // Actualiza estado del PC
+            estadoPCs[pcIndex].estado = 'Ocupado';
+            estadoPCs[pcIndex].cliente = reserva.nombre;
+            estadoPCs[pcIndex].gato = nombreAcompanante; 
+            estadoPCs[pcIndex].horaInicioMilisegundos = ahora;
+            estadoPCs[pcIndex].horasAsignadas = reserva.horas;
+            estadoPCs[pcIndex].horaInicioStr = horaRegistroStr;
+
+            // Envia al historial contable
+            registroClientes.push({
+                nombre: reserva.nombre,
+                pc: pcSeleccionado,
+                gato: nombreAcompanante,
+                horas: reserva.horas,
+                monto: reserva.monto,
+                activo: true
+            });
+
+            // Cambia el estado de la reserva a 'Completada'
+            agendaReservas[reservaIndex].estado = 'Completada';
+            
+            actualizarTablaReservas();
+            alert(`Sesión iniciada con éxito. El ${pcSeleccionado} y ${nombreAcompanante} han sido asignados.`);
+        }
+    }
+}
+
 function cerrarSesion() { window.location.href = 'index.html'; }
 function irConfiguraciones() { alert("Configuraciones del encargado..."); }

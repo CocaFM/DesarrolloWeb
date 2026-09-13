@@ -188,8 +188,49 @@
             </form>
         </div>
     </section>
+
+    <!-- 6. Consultar Registro -->
     <section id="sec-consultar-registro" class="contenido-panel seccion-funcional oculto">
-        <div class="tarjeta-trabajo"><h2>Agenda y Reservas</h2></div>
+        <div class="tarjeta-trabajo">
+            <h2>Agendar Nueva Reserva</h2>
+            <form id="form-reserva" onsubmit="guardarReserva(event)">
+                <label>Nombre del Cliente:</label>
+                <input type="text" id="nombre-reserva" required placeholder="Nombre completo">
+                
+                <label>Fecha y Hora de la Reserva:</label>
+                <input type="datetime-local" id="fecha-reserva" required>
+                
+                <label>Horas a reservar:</label>
+                <input type="number" id="horas-reserva" required min="1" placeholder="Ej. 2">
+                
+                <label>Monto a Pagar ($):</label>
+                <input type="number" id="monto-reserva" required min="0" placeholder="Calculado automáticamente" style="background-color: #f4f6f8;" readonly>
+
+                <div class="espacio-botones">
+                    <button type="submit">Agendar Reserva</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="tarjeta-trabajo">
+            <h2>Reservas Pendientes</h2>
+            <table class="tabla-datos">
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Fecha y Hora</th>
+                        <th>Horas</th>
+                        <th>Monto</th>
+                        <th>PC</th>
+                        <th>Acompañante</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpo-reservas">
+                    <!-- Los datos se insertan con JS -->
+                </tbody>
+            </table>
+        </div>
     </section>
 
     <!-- 7. Cierre de Caja -->
@@ -200,7 +241,7 @@
                 <p><strong>Total de Clientes Atendidos:</strong> <span id="total-clientes">0</span></p>
                 <p><strong>Recaudación Total:</strong> $<span id="total-ingresos">0</span></p>
             </div>
-            <button class="btn-secundario" onclick="alert('Caja cerrada con éxito.')">Finalizar Cierre de Caja</button>
+            <button class="btn-cierre-caja-boton" onclick="alert('Caja cerrada con éxito.')">Finalizar Cierre de Caja</button>
         </div>
     </section>
 
