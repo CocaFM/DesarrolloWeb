@@ -3,27 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[Nombre Genérico] - Iniciar Sesión</title>
+    <title>CyberCaté - Iniciar Sesión</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="contenedor-principal">
         <div class="caja-interfaz">
             
-            <!-- Menú Principal -->
-            <div id="menu-principal" class="seccion-activa">
-                <h2 class="titulo-bienvenida">Bienvenido a [Nombre Genérico]</h2>
-                <p class="subtitulo">Seleccione cómo desea ingresar:</p>
-                <button onclick="mostrarLogin('administrador')">Iniciar sesión como Administrador</button>
-                <button onclick="mostrarLogin('encargado')">Iniciar sesión como Encargado</button>
-                <button disabled>Iniciar sesión como Cliente (No disponible)</button>
-                <hr>
-                <button onclick="mostrarRegistro()" class="btn-secundario">Crea tu cuenta</button>
-            </div>
 
             <!-- Sección Login -->
-            <div id="seccion-login" class="seccion-oculta">
+            <div id="seccion-login" class="seccion-activa">
+                <h2 class="titulo-bienvenida">Bienvenido a CyberCaté</h2>
                 <h3 id="titulo-login">Iniciar Sesión</h3>
+                
                 <form id="form-login" onsubmit="procesarLogin(event)">
                     <label for="correo-login">Correo electrónico:</label>
                     <input type="email" id="correo-login" required placeholder="ejemplo@correo.com">
@@ -31,13 +23,12 @@
                     <label for="password-login">Contraseña:</label>
                     <input type="password" id="password-login" required placeholder="********">
 
-                    <input type="hidden" id="rol-login">
-
                     <div class="espacio-botones">
                         <button type="submit">Ingresar</button>
-                        <button type="button" class="btn-secundario" onclick="volverMenu()">Volver</button>
                     </div>
                 </form>
+                <hr>
+                <button onclick="mostrarRegistro()" class="btn-secundario">Crea tu cuenta</button>
             </div>
 
             <!-- Sección Registro -->
