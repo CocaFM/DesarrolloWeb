@@ -11,7 +11,7 @@ function volverMenu() {
 }
 
 function mostrarRegistro() {
-    menuLogin.className = 'seccion-oculta';
+    seccionLogin.className = 'seccion-oculta';
     seccionRegistro.className = 'seccion-activa';
 }
 
