@@ -1,11 +1,11 @@
-// ==========================================
-// MEMORIA TEMPORAL
-// ==========================================
+// ==========================================================================
+// 1. MEMORIA TEMPORAL Y BASES DE DATOS
+// ==========================================================================
 let registroClientes = [];
 
 // Base de datos de los gatos
 let estadoGatos = [
-    { id: 1, nombre: 'Luna', tipo: 'Siamesa', llego: 'Sí', horario: '09:00 - 15:00', estado: 'Disponible', asignacion: 'Ninguna' },
+    { id: 1, nombre: 'Estrella', tipo: 'Siamesa', llego: 'Sí', horario: '09:00 - 15:00', estado: 'Disponible', asignacion: 'Ninguna' },
     { id: 2, nombre: 'Simba', tipo: 'Naranja/Atigrado', llego: 'Sí', horario: '10:00 - 16:00', estado: 'Disponible', asignacion: 'Ninguna' },
     { id: 3, nombre: 'Oreo', tipo: 'Blanco y Negro', llego: 'Sí', horario: '14:00 - 20:00', estado: 'Disponible', asignacion: 'Ninguna' },
     { id: 4, nombre: 'Mochi', tipo: 'Persa', llego: 'Sí', horario: '09:00 - 14:00', estado: 'Disponible', asignacion: 'Ninguna' },
@@ -34,11 +34,11 @@ let estadoPCs = [
     { id: 'PC 12', estado: 'Disponible' }
 ];
 
-let intervaloTimerPCs = null; // Controla la actualización automática del reloj
+let intervaloTimerPCs = null; 
 
-// ==========================================
-// NAVEGACIÓN ENTRE SUBPÁGINAS
-// ==========================================
+// ==========================================================================
+// 2. NAVEGACIÓN ENTRE SUBPÁGINAS
+// ==========================================================================
 
 function abrirSeccion(idSeccion, nombreSeccion) {
     document.getElementById('menu-principal-encargado').classList.remove('activo');
@@ -59,10 +59,10 @@ function abrirSeccion(idSeccion, nombreSeccion) {
     document.getElementById('texto-ruta').innerText = ` : ${nombreSeccion}`;
     document.getElementById('btn-volver').classList.remove('oculto');
 
-    // Cargar datos dinámicos según la vista
+    // Cargas dinámicas
     if (idSeccion === 'sec-agregar-cliente') {
         cargarOpcionesGatos();
-        cargarOpcionesPCs(); // Filtra los PCs disponibles
+        cargarOpcionesPCs(); 
     }
     if (idSeccion === 'sec-estado-acompanantes') actualizarTablaGatos();
     if (idSeccion === 'sec-estados') actualizarVistaPCs();
@@ -80,16 +80,37 @@ function volverAlMenu() {
 
     document.getElementById('menu-principal-encargado').classList.remove('oculto');
     document.getElementById('menu-principal-encargado').classList.add('activo');
-
     document.getElementById('texto-ruta').innerText = '';
     document.getElementById('btn-volver').classList.add('oculto');
     
-    if(intervaloTimerPCs) clearInterval(intervaloTimerPCs); // Pausa el reloj al salir de la vista de PCs
+    if(intervaloTimerPCs) clearInterval(intervaloTimerPCs); 
 }
 
-// ==========================================
-// GESTIÓN DE CLIENTES, GATOS Y PCs
-// ==========================================
+function toggleMenuPerfil() {
+    const menu = document.getElementById('menu-perfil');
+    if (menu) menu.classList.toggle('activo');
+}
+
+window.onclick = function(evento) {
+    if (!evento.target.matches('.btn-perfil')) {
+        const menus = document.getElementsByClassName('menu-desplegable');
+        for (let i = 0; i < menus.length; i++) {
+            if (menus[i].classList.contains('activo')) {
+                menus[i].classList.remove('activo');
+            }
+        }
+    }
+};
+
+function cerrarSesion() { window.location.href = 'index.html'; }
+function irConfiguraciones() { alert("Configuraciones del encargado..."); }
+
+
+// ==========================================================================
+// 3. AGREGAR CLIENTE NUEVO (Y SU CÁLCULO DE TARIFA CON TAGS)
+// ==========================================================================
+const TARIFA_POR_HORA = 2500;
+let serviciosSeleccionadosCli = [];
 
 function cargarOpcionesGatos() {
     const selectGato = document.getElementById('gato-cli');
@@ -105,16 +126,6 @@ function cargarOpcionesGatos() {
         }
     });
 }
-
-// ==================
-// CÁLCULO DE TARIFA
-// ==================
-const TARIFA_POR_HORA = 2500;
-document.getElementById('horas-cli').addEventListener('input', function() {
-    const horas = parseInt(this.value) || 0; // Obtiene las horas, si está vacío asume 0
-    const inputMonto = document.getElementById('monto-cli');
-    inputMonto.value = horas * TARIFA_POR_HORA;
-});
 
 function cargarOpcionesPCs() {
     const selectPC = document.getElementById('pc-cli');
@@ -132,10 +143,22 @@ function cargarOpcionesPCs() {
         }
     });
 
-    if (!hayDisponibles) {
-        selectPC.innerHTML = '<option value="">Sin PCs disponibles</option>';
-    }
+    if (!hayDisponibles) selectPC.innerHTML = '<option value="">Sin PCs disponibles</option>';
 }
+
+function actualizarMontoCli() {
+    const horas = parseInt(document.getElementById('horas-cli').value) || 0;
+    let total = horas * TARIFA_POR_HORA;
+    
+    // Sumar servicios adicionales seleccionados (Tags)
+    serviciosSeleccionadosCli.forEach(s => total += s.precio);
+    
+    const inputMonto = document.getElementById('monto-cli');
+    if(inputMonto) inputMonto.value = total;
+}
+
+const inputHorasCli = document.getElementById('horas-cli');
+if (inputHorasCli) inputHorasCli.addEventListener('input', actualizarMontoCli);
 
 function guardarClienteTemporal(evento) {
     evento.preventDefault();
@@ -154,7 +177,6 @@ function guardarClienteTemporal(evento) {
     const ahora = Date.now(); 
     const horaRegistroStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    // Actualizar estado del gato si se seleccionó uno
     if (nombreGato !== "") {
         const gatoIndex = estadoGatos.findIndex(g => g.nombre === nombreGato);
         if (gatoIndex !== -1) {
@@ -163,7 +185,6 @@ function guardarClienteTemporal(evento) {
         }
     }
 
-    // Actualizar estado del PC y guardar los datos de tiempo
     const pcIndex = estadoPCs.findIndex(p => p.id === pcSelect);
     if(pcIndex !== -1) {
         estadoPCs[pcIndex].estado = 'Ocupado';
@@ -185,35 +206,49 @@ function guardarClienteTemporal(evento) {
 
     alert(`Cliente registrado. PC asignado: ${pcSelect}.`);
     document.getElementById('form-cliente').reset();
+    
+    // Reiniciar los Tags de Cliente
+    serviciosSeleccionadosCli = [];
+    actualizarTagsServiciosCli();
+    
     cargarOpcionesGatos(); 
     cargarOpcionesPCs(); 
 }
+
+
+// ==========================================================================
+// 4. GESTIÓN DE ACOMPAÑANTES Y MODAL DE HORARIOS
+// ==========================================================================
 
 function actualizarTablaGatos() {
     const cuerpoGatos = document.getElementById('cuerpo-gatos');
     if(!cuerpoGatos) return;
     cuerpoGatos.innerHTML = '';
 
-    // Bloqueamos el diseño de la tabla para que no se deforme al cambiar palabras
     const tabla = cuerpoGatos.closest('table');
-    if(tabla) {
-        tabla.style.tableLayout = 'fixed';
-    }
+    if(tabla) tabla.style.tableLayout = 'fixed';
 
     estadoGatos.forEach(gato => {
         let colorEstado = gato.estado === 'Disponible' ? 'green' : (gato.estado === 'Ocupado' ? 'red' : 'gray');
-        
         let colorBoton = gato.llego === 'Sí' ? '#2ecc71' : '#e74c3c';
-        // Fijamos también el ancho del botón para evitar saltos
-        let botonLlegada = `<button onclick="alternarLlegada(${gato.id})" style="background-color: ${colorBoton}; color: white; border: none; padding: 5px 0; width: 45px; border-radius: 5px; cursor: pointer; font-weight: bold; text-align: center;">${gato.llego}</button>`;
         
+        let botonLlegada = `<button onclick="alternarLlegada(${gato.id})" style="background-color: ${colorBoton}; color: white; border: none; padding: 5px 0; width: 45px; border-radius: 5px; cursor: pointer; font-weight: bold; text-align: center; margin: 0 auto; display: block;">${gato.llego}</button>`;
+        
+        // Botón de lápiz sin márgenes extraños
+        let btnHorario = `<button onclick="abrirModalHorario(${gato.id}, '${gato.horario}')" style="background: none; border: none; cursor: pointer; font-size: 16px; margin-left: 8px; padding: 0;" title="Modificar horario">✏️</button>`;
+
         const fila = document.createElement('tr');
-        // Se aplican porcentajes estrictos a las columnas para congelar su estructura
+        
+        // Flexbox en el horario para forzar una línea
         fila.innerHTML = `
             <td style="width: 15%;"><strong>${gato.nombre}</strong></td>
             <td style="width: 25%;">${gato.tipo}</td>
-            <td style="width: 10%; text-align: center;">${botonLlegada}</td>
-            <td style="width: 15%;">${gato.horario}</td>
+            <td style="width: 10%;">${botonLlegada}</td>
+            <td style="width: 15%;">
+                <div style="display: flex; align-items: center; justify-content: center; white-space: nowrap;">
+                    ${gato.horario} ${btnHorario}
+                </div>
+            </td>
             <td style="width: 15%; color: ${colorEstado}; font-weight: bold;">${gato.estado}</td>
             <td style="width: 20%;">${gato.asignacion}</td>
         `;
@@ -223,10 +258,8 @@ function actualizarTablaGatos() {
 
 function alternarLlegada(idGato) {
     const gatoIndex = estadoGatos.findIndex(g => g.id === idGato);
-    
     if (gatoIndex !== -1) {
         const gato = estadoGatos[gatoIndex];
-        
         if (gato.estado === 'Ocupado') {
             alert(`No puedes marcar como ausente a ${gato.nombre} porque está actualmente asignado a un cliente.`);
             return;
@@ -239,18 +272,56 @@ function alternarLlegada(idGato) {
             gato.llego = 'Sí';
             gato.estado = 'Disponible';
         }
-
         actualizarTablaGatos();
         cargarOpcionesGatos(); 
     }
 }
+
+// Lógica del Modal
+function abrirModalHorario(idGato, horarioActual) {
+    document.getElementById('modal-gato-id').value = idGato;
+    let partes = horarioActual.split(' - ');
+    if(partes.length === 2) {
+        document.getElementById('modal-hora-entrada').value = partes[0].trim();
+        document.getElementById('modal-hora-salida').value = partes[1].trim() === '00:00' ? '23:59' : partes[1].trim(); 
+    }
+    document.getElementById('modal-horario').classList.remove('oculto');
+}
+
+function cerrarModalHorario() {
+    document.getElementById('modal-horario').classList.add('oculto');
+}
+
+function guardarHorario() {
+    let id = parseInt(document.getElementById('modal-gato-id').value);
+    let entrada = document.getElementById('modal-hora-entrada').value;
+    let salida = document.getElementById('modal-hora-salida').value;
+    
+    if(!entrada || !salida) {
+        alert("Por favor completa ambos horarios.");
+        return;
+    }
+    
+    if(salida === '23:59') salida = '00:00';
+
+    let gatoIndex = estadoGatos.findIndex(g => g.id === id);
+    if(gatoIndex !== -1) {
+        estadoGatos[gatoIndex].horario = `${entrada} - ${salida}`;
+        actualizarTablaGatos();
+    }
+    cerrarModalHorario();
+}
+
+
+// ==========================================================================
+// 5. ESTADOS DEL PC (RELOJ Y MONITOREO)
+// ==========================================================================
 
 function actualizarVistaPCs() {
     const contenedor = document.getElementById('contenedor-pcs');
     if(!contenedor) return;
     contenedor.innerHTML = '';
 
-    // Transformamos el contenedor en una cuadrícula fija de exactamente 4 columnas
     contenedor.style.display = 'grid';
     contenedor.style.gridTemplateColumns = 'repeat(4, 1fr)';
     contenedor.style.gap = '20px';
@@ -286,7 +357,6 @@ function actualizarVistaPCs() {
             `;
             boton = `<button class="btn-secundario" style="margin-top: 10px; padding: 8px 12px; border-radius: 5px; color: white; border: none; cursor: pointer; font-size: 13px; width: 100%;" onclick="terminarSesion('${pc.id}', '${pc.gato}')">Terminar Sesión</button>`;
         } else {
-            // Relleno invisible para que los PCs disponibles tengan la misma altura que los ocupados
             infoExtra = `<div style="flex-grow: 1;"></div>`;
             boton = `<div style="height: 35px; margin-top: 10px;"></div>`;
         }
@@ -300,7 +370,6 @@ function actualizarVistaPCs() {
         `;
     });
 
-    // Actualización automática del reloj cada 60 segundos
     if(intervaloTimerPCs) clearInterval(intervaloTimerPCs);
     intervaloTimerPCs = setInterval(() => {
         if(document.getElementById('sec-estados').classList.contains('activo')) {
@@ -308,6 +377,11 @@ function actualizarVistaPCs() {
         }
     }, 60000);
 }
+
+
+// ==========================================================================
+// 6. HISTORIAL Y CIERRE DE CAJA (FINALIZAR SESIONES)
+// ==========================================================================
 
 function actualizarTablaHistorial() {
     const cuerpoTabla = document.getElementById('cuerpo-historial');
@@ -336,16 +410,11 @@ function actualizarCierreCaja() {
     document.getElementById('total-ingresos').innerText = ingresosTotales.toLocaleString();
 }
 
-// ==========================================
-// LIBERAR PC Y FINALIZAR SESIÓN
-// ==========================================
 function terminarSesion(pc, gato){
     const pcIndex = estadoPCs.findIndex(p => p.id === pc);
     const clienteIndex = registroClientes.findIndex(c => c.pc === pc && c.activo);
 
-    if(clienteIndex !== -1){
-        registroClientes[clienteIndex].activo = false; 
-    }
+    if(clienteIndex !== -1) registroClientes[clienteIndex].activo = false; 
     
     if(pcIndex !== -1){
         estadoPCs[pcIndex].estado = 'Disponible';
@@ -356,45 +425,33 @@ function terminarSesion(pc, gato){
         delete estadoPCs[pcIndex].horaInicioStr;
     }
 
-    if(gato && gato !== 'Sin acompañante'){
-        const gatoIndex = estadoGatos.findIndex(g => g.nombre === gato);
-
+    // Liberar cualquier cantidad de gatos asignados
+if(gato && gato !== 'Sin acompañante'){
+    let gatosALiberar = gato.split(', ');
+    gatosALiberar.forEach(g => {
+        const gatoIndex = estadoGatos.findIndex(estado => estado.nombre === g);
         if(gatoIndex !== -1){
             estadoGatos[gatoIndex].estado = 'Disponible';
             estadoGatos[gatoIndex].asignacion = 'Ninguna';
         }
-    }
+    });
+}
 
-    alert(`Sesión terminada. El ${pc} y el acompañante han sido liberados.`);
-    
+    alert(`Sesión terminada. El ${pc} y el/los acompañante(s) han sido liberados.`);
     actualizarVistaPCs();
     actualizarTablaGatos();
     cargarOpcionesGatos(); 
     cargarOpcionesPCs(); 
 }
 
-// ==========================================
-// MENÚ DE PERFIL
-// ==========================================
-function toggleMenuPerfil() {
-    const menu = document.getElementById('menu-perfil');
-    if (menu) menu.classList.toggle('activo');
-}
 
-window.onclick = function(evento) {
-    if (!evento.target.matches('.btn-perfil')) {
-        const menus = document.getElementsByClassName('menu-desplegable');
-        for (let i = 0; i < menus.length; i++) {
-            if (menus[i].classList.contains('activo')) {
-                menus[i].classList.remove('activo');
-            }
-        }
-    }
-};
+// ==========================================================================
+// 7. MODIFICAR SESIÓN (SERVICIOS ADICIONALES Y GATOS EXTRA)
+// ==========================================================================
 
-// ==========================================
-// SERVICIOS ADICIONALES Y HORAS EXTRA
-// ==========================================
+const COSTO_GATO_EXTRA = 2000;
+let serviciosSeleccionados = [];
+let gatosExtraSeleccionados = [];
 
 function cargarOpcionesPCsActivos() {
     const selectPCExtra = document.getElementById('pc-extra');
@@ -413,77 +470,246 @@ function cargarOpcionesPCsActivos() {
         }
     });
 
-    if (!hayActivos) {
-        selectPCExtra.innerHTML = '<option value="">No hay PCs ocupados actualmente</option>';
-    }
+    if (!hayActivos) selectPCExtra.innerHTML = '<option value="">No hay PCs ocupados actualmente</option>';
+
+    cargarOpcionesCambioGato();
+    serviciosSeleccionados = [];
+    gatosExtraSeleccionados = [];
+    actualizarSumaTotalExtra();
+    actualizarTagsServicios();
+    actualizarTagsGatos();
 }
+
+function cargarOpcionesCambioGato() {
+    const selectPrincipal = document.getElementById('cambio-gato-extra');
+    const selectExtra = document.getElementById('select-add-gato');
+    if (!selectPrincipal) return;
+
+    let baseHTML = '<option value="">Mantener actual / Sin cambios</option>';
+    baseHTML += '<option value="QUITAR">Quitar acompañante actual</option>';
+    let extraHTML = '<option value="" disabled selected hidden>+ Despliega aquí para elegir acompañantes extra...</option>';
+
+    estadoGatos.forEach(gato => {
+        if (gato.estado === 'Disponible') {
+            const opcion = `<option value="${gato.nombre}">${gato.nombre} (${gato.tipo})</option>`;
+            baseHTML += opcion;
+            extraHTML += opcion;
+        }
+    });
+
+    selectPrincipal.innerHTML = baseHTML;
+    if(selectExtra) selectExtra.innerHTML = extraHTML;
+}
+
+function actualizarSumaTotalExtra() {
+    let total = 0;
+    serviciosSeleccionados.forEach(s => total += s.precio);
+    total += (gatosExtraSeleccionados.length * COSTO_GATO_EXTRA);
+    
+    const inputMonto = document.getElementById('monto-extra');
+    if(inputMonto) inputMonto.value = total;
+}
+
+// INICIALIZACIÓN DE LOS 3 MENÚS DE TAGS (NATIVOS)
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // A. Menú de Servicios (Modificar Sesión)
+    const selectSrv = document.getElementById('select-add-servicio');
+    if (selectSrv) {
+        selectSrv.addEventListener('change', (e) => {
+            if (e.target.value === "") return;
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            serviciosSeleccionados.push({
+                id: Date.now() + Math.random(), 
+                nombre: selectedOption.value,
+                precio: parseInt(selectedOption.getAttribute('data-precio')),
+                horas: parseInt(selectedOption.getAttribute('data-horas'))
+            });
+            actualizarTagsServicios();
+            e.target.value = ""; 
+        });
+    }
+
+    // B. Menú de Gatos Extra (Modificar Sesión)
+    const selectGato = document.getElementById('select-add-gato');
+    if (selectGato) {
+        selectGato.addEventListener('change', (e) => {
+            if (e.target.value === "") return;
+            if (gatosExtraSeleccionados.length >= 4) {
+                alert("Límite alcanzado: Máximo 4 acompañantes extra permitidos.");
+                e.target.value = "";
+                return;
+            }
+            const nombreGato = e.target.value;
+            if (gatosExtraSeleccionados.includes(nombreGato)) {
+                alert("Este acompañante ya fue seleccionado.");
+                e.target.value = "";
+                return;
+            }
+            gatosExtraSeleccionados.push(nombreGato);
+            actualizarTagsGatos();
+            e.target.value = ""; 
+        });
+    }
+
+    // C. Menú de Servicios (Agregar Cliente Nuevo)
+    const selectSrvCli = document.getElementById('select-add-servicio-cli');
+    if (selectSrvCli) {
+        selectSrvCli.addEventListener('change', (e) => {
+            if (e.target.value === "") return;
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            serviciosSeleccionadosCli.push({
+                id: Date.now() + Math.random(), 
+                nombre: selectedOption.value,
+                precio: parseInt(selectedOption.getAttribute('data-precio'))
+            });
+            actualizarTagsServiciosCli();
+            e.target.value = ""; 
+        });
+    }
+});
+
+// Lógica Visual y de Eliminación de los 3 tipos de Tags
+function actualizarTagsServicios() {
+    const contenedor = document.getElementById('tags-servicios');
+    if (!contenedor) return;
+    contenedor.innerHTML = '';
+    serviciosSeleccionados.forEach(servicio => {
+        const tag = document.createElement('div');
+        tag.className = 'tag-servicio';
+        tag.innerHTML = `${servicio.nombre} <span class="tag-eliminar" onclick="eliminarServicio(${servicio.id})" title="Quitar servicio">&times;</span>`;
+        contenedor.appendChild(tag);
+    });
+    actualizarSumaTotalExtra();
+}
+window.eliminarServicio = function(idAEliminar) {
+    serviciosSeleccionados = serviciosSeleccionados.filter(s => s.id !== idAEliminar);
+    actualizarTagsServicios();
+};
+
+function actualizarTagsGatos() {
+    const contenedor = document.getElementById('tags-gatos');
+    if (!contenedor) return;
+    contenedor.innerHTML = '';
+    gatosExtraSeleccionados.forEach(gato => {
+        const tag = document.createElement('div');
+        tag.className = 'tag-gato';
+        tag.innerHTML = `${gato} <span class="tag-eliminar" onclick="eliminarGatoExtra('${gato}')" title="Quitar acompañante">&times;</span>`;
+        contenedor.appendChild(tag);
+    });
+    actualizarSumaTotalExtra();
+}
+window.eliminarGatoExtra = function(nombreGato) {
+    gatosExtraSeleccionados = gatosExtraSeleccionados.filter(g => g !== nombreGato);
+    actualizarTagsGatos();
+};
+
+function actualizarTagsServiciosCli() {
+    const contenedor = document.getElementById('tags-servicios-cli');
+    if (!contenedor) return;
+    contenedor.innerHTML = '';
+    serviciosSeleccionadosCli.forEach(servicio => {
+        const tag = document.createElement('div');
+        tag.className = 'tag-servicio';
+        tag.innerHTML = `${servicio.nombre} <span class="tag-eliminar" onclick="eliminarServicioCli(${servicio.id})" title="Quitar servicio">&times;</span>`;
+        contenedor.appendChild(tag);
+    });
+    actualizarMontoCli(); 
+}
+window.eliminarServicioCli = function(idAEliminar) {
+    serviciosSeleccionadosCli = serviciosSeleccionadosCli.filter(s => s.id !== idAEliminar);
+    actualizarTagsServiciosCli();
+};
+
 
 function guardarExtra(evento) {
     evento.preventDefault();
 
     const pcSelect = document.getElementById('pc-extra').value;
-    const horasExtra = parseInt(document.getElementById('horas-extra').value) || 0;
-    const montoExtra = parseFloat(document.getElementById('monto-extra').value) || 0;
+    const montoExtra = parseInt(document.getElementById('monto-extra').value) || 0;
+    const nuevoGatoPrincipal = document.getElementById('cambio-gato-extra').value;
+    
+    let horasExtraTotales = 0;
+    serviciosSeleccionados.forEach(s => horasExtraTotales += s.horas);
 
-    if (!pcSelect) {
-        alert("Selecciona un PC válido que esté ocupado.");
-        return;
-    }
-
-    if (horasExtra === 0 && montoExtra === 0) {
-        alert("Debes agregar al menos horas o un monto extra.");
-        return;
-    }
-
-    // Actualiza el temporizador y aumenta las horas asignadas del PC
+    if (!pcSelect) { alert("Selecciona un PC."); return; }
     const pcIndex = estadoPCs.findIndex(p => p.id === pcSelect);
-    if (pcIndex !== -1 && estadoPCs[pcIndex].estado === 'Ocupado') {
-        estadoPCs[pcIndex].horasAsignadas += horasExtra;
-    }
-
     const clienteIndex = registroClientes.findIndex(c => c.pc === pcSelect && c.activo === true);
-    if (clienteIndex !== -1) {
-        registroClientes[clienteIndex].horas += horasExtra;
-        registroClientes[clienteIndex].monto += montoExtra;
+    if (pcIndex === -1 || clienteIndex === -1) { alert("No se encontró la sesión."); return; }
+
+    // Cobros y Horas
+    if (montoExtra > 0) registroClientes[clienteIndex].monto += montoExtra;
+    if (horasExtraTotales > 0) {
+        estadoPCs[pcIndex].horasAsignadas += horasExtraTotales;
+        registroClientes[clienteIndex].horas += horasExtraTotales;
     }
 
-    alert(`Se han añadido correctamente los extras al ${pcSelect}.`);
-    
-    // Reinicia el formulario
-    document.getElementById('form-extras').reset();
-    document.getElementById('horas-extra').value = 0;
-    document.getElementById('monto-extra').value = 0;
-    
-    cargarOpcionesPCsActivos();
-}
-// ==========================================
-// CÁLCULO AUTOMÁTICO PARA HORAS EXTRA
-// ==========================================
-document.getElementById('horas-extra').addEventListener('input', function() {
-    const horasExtra = parseInt(this.value) || 0;
-    const inputMontoExtra = document.getElementById('monto-extra');
-    
-    // Calcula el monto extra basado en las horas y la tarifa ya definida
-    inputMontoExtra.value = horasExtra * TARIFA_POR_HORA;
-});
+    // Cambio de gato principal
+    let acompañantesNuevos = estadoPCs[pcIndex].gato === 'Sin acompañante' ? [] : estadoPCs[pcIndex].gato.split(', ');
 
-// ==========================================
-// AGENDA Y RESERVAS
-// ==========================================
+    if (nuevoGatoPrincipal !== "") {
+        const gatoActual = acompañantesNuevos[0]; 
+        
+        if (gatoActual && gatoActual !== '') {
+            const idxActual = estadoGatos.findIndex(g => g.nombre === gatoActual);
+            if (idxActual !== -1) {
+                estadoGatos[idxActual].estado = 'Disponible';
+                estadoGatos[idxActual].asignacion = 'Ninguna';
+            }
+            acompañantesNuevos.shift(); 
+        }
+
+        if (nuevoGatoPrincipal !== 'QUITAR') {
+            const idxNuevo = estadoGatos.findIndex(g => g.nombre === nuevoGatoPrincipal);
+            if (idxNuevo !== -1) {
+                estadoGatos[idxNuevo].estado = 'Ocupado';
+                estadoGatos[idxNuevo].asignacion = `Cliente: ${estadoPCs[pcIndex].cliente} | ${pcSelect}`;
+                acompañantesNuevos.unshift(nuevoGatoPrincipal); 
+            }
+        }
+    }
+
+    // Gatos Extra
+    gatosExtraSeleccionados.forEach(nombreGato => {
+        const idx = estadoGatos.findIndex(g => g.nombre === nombreGato);
+        if (idx !== -1) {
+            estadoGatos[idx].estado = 'Ocupado';
+            estadoGatos[idx].asignacion = `Cliente Extra: ${estadoPCs[pcIndex].cliente} | ${pcSelect}`;
+            acompañantesNuevos.push(nombreGato);
+        }
+    });
+
+    let stringAcompanantes = acompañantesNuevos.length > 0 ? acompañantesNuevos.join(', ') : 'Sin acompañante';
+    estadoPCs[pcIndex].gato = stringAcompanantes;
+    registroClientes[clienteIndex].gato = stringAcompanantes;
+
+    if (montoExtra === 0 && nuevoGatoPrincipal === "" && gatosExtraSeleccionados.length === 0) {
+         alert("No has seleccionado modificaciones.");
+         return;
+    }
+
+    alert(`Se han aplicado las modificaciones al ${pcSelect}.`);
+    
+    document.getElementById('form-extras').reset();
+    cargarOpcionesPCsActivos();
+    actualizarVistaPCs();
+    actualizarTablaGatos();
+    cargarOpcionesGatos(); 
+}
+
+
+// ==========================================================================
+// 8. AGENDA Y RESERVAS 
+// ==========================================================================
+
 let agendaReservas = [];
 let contadorReservas = 1;
-
 
 document.getElementById('horas-reserva').addEventListener('input', function() {
     const horas = parseInt(this.value) || 0;
     const inputMontoReserva = document.getElementById('monto-reserva');
-    inputMontoReserva.value = horas * TARIFA_POR_HORA;
+    if(inputMontoReserva) inputMontoReserva.value = horas * TARIFA_POR_HORA;
 });
-
-
-function cargarOpcionesPCsReservas() {
-    
-}
 
 function guardarReserva(evento) {
     evento.preventDefault();
@@ -502,10 +728,7 @@ function guardarReserva(evento) {
     });
 
     alert(`Reserva de ${nombre} agendada correctamente.`);
-    
-    // Reiniciar el formulario
     document.getElementById('form-reserva').reset();
-    
     actualizarTablaReservas();
 }
 
@@ -514,26 +737,19 @@ function actualizarTablaReservas() {
     if(!cuerpo) return;
     cuerpo.innerHTML = '';
 
-    // Crear las opciones de PCs DISPONIBLES en el momento
     let opcionesPCsDisponibles = '<option value="">Seleccione PC...</option>';
     estadoPCs.forEach(pc => {
-        if (pc.estado === 'Disponible') {
-            opcionesPCsDisponibles += `<option value="${pc.id}">${pc.id}</option>`;
-        }
+        if (pc.estado === 'Disponible') opcionesPCsDisponibles += `<option value="${pc.id}">${pc.id}</option>`;
     });
 
-    // Crear las opciones de GATOS DISPONIBLES en el momento
     let opcionesGatosDisponibles = '<option value="">Ninguno</option>';
     estadoGatos.forEach(gato => {
-        if (gato.estado === 'Disponible') {
-            opcionesGatosDisponibles += `<option value="${gato.nombre}">${gato.nombre} (${gato.tipo})</option>`;
-        }
+        if (gato.estado === 'Disponible') opcionesGatosDisponibles += `<option value="${gato.nombre}">${gato.nombre} (${gato.tipo})</option>`;
     });
 
     agendaReservas.forEach(reserva => {
         if(reserva.estado !== 'Pendiente') return;
 
-        // Formatear la fecha para mostrarla de manera más legible
         const fechaFormat = new Date(reserva.fecha).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
         const fila = document.createElement('tr');
         
@@ -561,20 +777,14 @@ function actualizarTablaReservas() {
     });
 }
 
-
 function cancelarReserva(id) {
     const reservaIndex = agendaReservas.findIndex(r => r.id === id);
     if(reservaIndex === -1) return;
-    
     const reserva = agendaReservas[reservaIndex];
 
     if (confirm(`¿Estás seguro de que deseas cancelar la reserva de ${reserva.nombre}?`)) {
-        
         agendaReservas[reservaIndex].estado = 'Cancelada';
-        
-        
         actualizarTablaReservas();
-        
         alert(`La reserva de ${reserva.nombre} ha sido cancelada.`);
     }
 }
@@ -582,30 +792,18 @@ function cancelarReserva(id) {
 function activarReserva(id) {
     const reservaIndex = agendaReservas.findIndex(r => r.id === id);
     if(reservaIndex === -1) return;
-    
     const reserva = agendaReservas[reservaIndex];
     
     const selectPC = document.getElementById(`pc-llegada-${reserva.id}`);
     const pcSeleccionado = selectPC.value;
-
     const selectGato = document.getElementById(`gato-llegada-${reserva.id}`);
     const gatoSeleccionado = selectGato.value;
 
-    if (!pcSeleccionado) {
-        alert("Por favor, asigne un PC disponible antes de iniciar la sesión.");
-        return;
-    }
-
+    if (!pcSeleccionado) { alert("Por favor, asigne un PC disponible antes de iniciar la sesión."); return; }
     const pcIndex = estadoPCs.findIndex(p => p.id === pcSeleccionado);
 
     if (pcIndex !== -1) {
-        // Verificación de disponibilidad del PC seleccionado
-        if (estadoPCs[pcIndex].estado !== 'Disponible') {
-            alert(`El ${pcSeleccionado} ya fue ocupado. Seleccione otro.`);
-            return;
-        }
-
-        // Verificación de disponibilidad del gato seleccionado
+        if (estadoPCs[pcIndex].estado !== 'Disponible') { alert(`El ${pcSeleccionado} ya fue ocupado. Seleccione otro.`); return; }
         if (gatoSeleccionado !== "") {
             const indexGatoVerificar = estadoGatos.findIndex(g => g.nombre === gatoSeleccionado);
             if (indexGatoVerificar !== -1 && estadoGatos[indexGatoVerificar].estado !== 'Disponible') {
@@ -615,11 +813,9 @@ function activarReserva(id) {
         }
 
         if(confirm(`¿Deseas iniciar la sesión de ${reserva.nombre} en el ${pcSeleccionado} por ${reserva.horas} hora(s)?`)) {
-            
             const ahora = Date.now();
             const horaRegistroStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-            // Actualizar estado del Gato (si se eligió uno)
             let nombreAcompanante = 'Sin acompañante';
             if (gatoSeleccionado !== "") {
                 const gatoIndex = estadoGatos.findIndex(g => g.nombre === gatoSeleccionado);
@@ -630,7 +826,6 @@ function activarReserva(id) {
                 }
             }
 
-            // Actualiza estado del PC
             estadoPCs[pcIndex].estado = 'Ocupado';
             estadoPCs[pcIndex].cliente = reserva.nombre;
             estadoPCs[pcIndex].gato = nombreAcompanante; 
@@ -638,7 +833,6 @@ function activarReserva(id) {
             estadoPCs[pcIndex].horasAsignadas = reserva.horas;
             estadoPCs[pcIndex].horaInicioStr = horaRegistroStr;
 
-            // Envia al historial contable
             registroClientes.push({
                 nombre: reserva.nombre,
                 pc: pcSeleccionado,
@@ -648,14 +842,9 @@ function activarReserva(id) {
                 activo: true
             });
 
-            // Cambia el estado de la reserva a 'Completada'
             agendaReservas[reservaIndex].estado = 'Completada';
-            
             actualizarTablaReservas();
             alert(`Sesión iniciada con éxito. El ${pcSeleccionado} y ${nombreAcompanante} han sido asignados.`);
         }
     }
 }
-
-function cerrarSesion() { window.location.href = 'index.html'; }
-function irConfiguraciones() { alert("Configuraciones del encargado..."); }

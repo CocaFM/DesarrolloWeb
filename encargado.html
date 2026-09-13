@@ -50,8 +50,8 @@
                 <p>Historial</p>
             </div>
             <div class="item-grilla">
-                <button class="btn-agregar-servicio" onclick="abrirSeccion('sec-agregar-servicio', 'Agregar Servicio Adicional')"></button>
-                <p>Agregar Servicio Adicional</p>
+                <button class="btn-agregar-servicio" onclick="abrirSeccion('sec-agregar-servicio', 'Agregar servicios adicionales y modificar acompañante')"></button>
+                <p>Agregar servicios adicionales y modificar acompañante</p>
             </div>
             <div class="item-grilla">
                 <button class="btn-consultar-registro" onclick="abrirSeccion('sec-consultar-registro', 'Consultar Registro')"></button>
@@ -111,8 +111,17 @@
                     <!-- Las opciones cargarán con JS -->
                 </select>
 
-                <label>Servicio Adicional:</label>
-                <input type="text" id="servicio-cli" placeholder="Bebida, snack, impresión...">
+                <label>Servicio Adicional (Opcional):</label>
+                <div style="margin-bottom: 15px;">
+                    <div id="tags-servicios-cli" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;"></div>
+                    
+                    <select id="select-add-servicio-cli" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer;">
+                        <option value="" disabled selected hidden>+ Despliega aquí para agregar un servicio...</option>
+                        <option value="Bebida" data-precio="1500">Bebida ($1,500)</option>
+                        <option value="Comida" data-precio="3000">Comida ($3,000)</option>
+                        <option value="Impresión" data-precio="500">Impresión ($500)</option>
+                    </select>
+                </div>
                 
                 <label>Monto a Pagar ($):</label>
                 <input type="number" id="monto-cli" required min="0" placeholder="Calculado automáticamente" style="background-color: #f4f6f8;">
@@ -166,28 +175,60 @@
             </table>
         </div>
     </section>
-    <!-- 5. Agregar Servicio -->
+    
+    
+    <!-- 5. Agregar Servicios y Modificar Acompañante -->
     <section id="sec-agregar-servicio" class="contenido-panel seccion-funcional oculto">
         <div class="tarjeta-trabajo">
-            <h2>Agregar Extras a Sesión Activa</h2>
+            <h2>Agregar servicios adicionales y modificar acompañante</h2>
             <form id="form-extras" onsubmit="guardarExtra(event)">
                 <label>Seleccionar PC Ocupado:</label>
                 <select id="pc-extra" style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; border-radius: 5px;" required>
                     <!-- Las opciones se cargarán con JS -->
                 </select>
 
-                <label>Horas adicionales a sumar:</label>
-                <input type="number" id="horas-extra" min="0" value="0" placeholder="Ej. 1">
+                <label>Servicios Adicionales:</label>
+                <div style="margin-bottom: 15px;">
+                    <!-- Aquí aparecerán los cuadraditos uno al lado del otro -->
+                    <div id="tags-servicios" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;"></div>
+                    
+                    <!-- Menú desplegable nativo -->
+                    <select id="select-add-servicio" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer;">
+                        <option value="" disabled selected hidden>+ Despliega aquí para agregar un servicio...</option>
+                        <option value="Bebida" data-precio="1500" data-horas="0">Bebida ($1,500)</option>
+                        <option value="Comida" data-precio="3000" data-horas="0">Comida ($3,000)</option>
+                        <option value="Impresión" data-precio="500" data-horas="0">Impresión ($500)</option>
+                        <option value="1 Hora Extra" data-precio="2500" data-horas="1">1 Hora Extra ($2,500)</option>
+                    </select>
+                </div>
+
+                <label>Cambiar Acompañante Principal (Opcional):</label>
+                <select id="cambio-gato-extra">
+                    <!-- Opciones por JS -->
+                </select>
+
+                <label style="margin-top: 20px;">Agregar Acompañantes Extra (Máx. 4, +$2,000 c/u):</label>
+                <div style="margin-bottom: 15px;">
+                    <!-- Aquí aparecerán los cuadraditos de los gatos extra -->
+                    <div id="tags-gatos" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;"></div>
+                    
+                    <!-- Menú desplegable nativo -->
+                    <select id="select-add-gato" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer;">
+                        <option value="" disabled selected hidden>+ Despliega aquí para elegir acompañantes extra...</option>
+                        <!-- Las opciones cargarán con JS -->
+                    </select>
+                </div>
                 
                 <label>Monto extra a cobrar ($):</label>
-                <input type="number" id="monto-extra" min="0" value="0" placeholder="Ej. 1500 (Bebida o snack)">
+                <input type="number" id="monto-extra" min="0" value="0" style="background-color: #f4f6f8;" readonly>
 
                 <div class="espacio-botones">
-                    <button type="submit">Aplicar Extras</button>
+                    <button type="submit">Aplicar Modificaciones</button>
                 </div>
             </form>
         </div>
     </section>
+
 
     <!-- 6. Consultar Registro -->
     <section id="sec-consultar-registro" class="contenido-panel seccion-funcional oculto">
@@ -235,16 +276,42 @@
 
     <!-- 7. Cierre de Caja -->
     <section id="sec-cierre-caja" class="contenido-panel seccion-funcional oculto">
-        <div class="tarjeta-trabajo">
+        <div class="tarjeta-trabajo" style="text-align: left;">
             <h2>Resumen y Balance del Día</h2>
             <div style="font-size: 18px; margin: 20px 0;">
                 <p><strong>Total de Clientes Atendidos:</strong> <span id="total-clientes">0</span></p>
                 <p><strong>Recaudación Total:</strong> $<span id="total-ingresos">0</span></p>
             </div>
-            <button class="btn-cierre-caja-boton" onclick="alert('Caja cerrada con éxito.')">Finalizar Cierre de Caja</button>
+            
+            <div style="margin-top: 60px; text-align: center;">
+                <p style="font-size: 22px; font-weight: bold; margin-bottom: 25px; color: white;">
+                    Cierre de caja <br><br> ⬇️
+                </p>
+                <button class="btn-cierre-caja-final" onclick="alert('Caja cerrada con éxito.')" title="Finalizar Cierre de Caja"></button>
+            </div>
         </div>
     </section>
 
     <script src="script_encargado.js"></script>
+
+    <!-- MODAL DE EDICIÓN DE HORARIO -->
+    <div id="modal-horario" class="modal-superpuesto oculto">
+        <div class="modal-contenido">
+            <h3 style="margin-top: 0;">Modificar Horario</h3>
+            <input type="hidden" id="modal-gato-id">
+            
+            <label style="text-align: left; margin-top: 15px;">Hora de Entrada:</label>
+            <input type="time" id="modal-hora-entrada" min="09:00" max="23:59" style="width: 100%; padding: 8px; margin-top: 5px;">
+            
+            <label style="text-align: left; margin-top: 15px;">Hora de Salida:</label>
+            <input type="time" id="modal-hora-salida" min="09:00" max="23:59" style="width: 100%; padding: 8px; margin-top: 5px;">
+            
+            <div style="display: flex; gap: 10px; margin-top: 25px;">
+                <button onclick="guardarHorario()" style="background-color: #2ecc71; margin: 0;">Confirmar</button>
+                <button onclick="cerrarModalHorario()" class="btn-secundario" style="margin: 0;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
