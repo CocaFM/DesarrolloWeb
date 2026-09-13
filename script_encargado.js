@@ -68,6 +68,7 @@ function abrirSeccion(idSeccion, nombreSeccion) {
     if (idSeccion === 'sec-estados') actualizarVistaPCs();
     if (idSeccion === 'sec-historial') actualizarTablaHistorial();
     if (idSeccion === 'sec-cierre-caja') actualizarCierreCaja();
+    if (idSeccion === 'sec-agregar-servicio') cargarOpcionesPCsActivos();
 }
 
 function volverAlMenu() {
@@ -104,6 +105,16 @@ function cargarOpcionesGatos() {
         }
     });
 }
+
+// ==================
+// CÁLCULO DE TARIFA
+// ==================
+const TARIFA_POR_HORA = 2500;
+document.getElementById('horas-cli').addEventListener('input', function() {
+    const horas = parseInt(this.value) || 0; // Obtiene las horas, si está vacío asume 0
+    const inputMonto = document.getElementById('monto-cli');
+    inputMonto.value = horas * TARIFA_POR_HORA;
+});
 
 function cargarOpcionesPCs() {
     const selectPC = document.getElementById('pc-cli');
@@ -380,6 +391,81 @@ window.onclick = function(evento) {
         }
     }
 };
+
+// ==========================================
+// SERVICIOS ADICIONALES Y HORAS EXTRA
+// ==========================================
+
+function cargarOpcionesPCsActivos() {
+    const selectPCExtra = document.getElementById('pc-extra');
+    if (!selectPCExtra) return;
+    
+    selectPCExtra.innerHTML = '';
+    let hayActivos = false;
+    
+    estadoPCs.forEach(pc => {
+        if (pc.estado === 'Ocupado') {
+            const opcion = document.createElement('option');
+            opcion.value = pc.id;
+            opcion.textContent = `${pc.id} (Cliente: ${pc.cliente})`;
+            selectPCExtra.appendChild(opcion);
+            hayActivos = true;
+        }
+    });
+
+    if (!hayActivos) {
+        selectPCExtra.innerHTML = '<option value="">No hay PCs ocupados actualmente</option>';
+    }
+}
+
+function guardarExtra(evento) {
+    evento.preventDefault();
+
+    const pcSelect = document.getElementById('pc-extra').value;
+    const horasExtra = parseInt(document.getElementById('horas-extra').value) || 0;
+    const montoExtra = parseFloat(document.getElementById('monto-extra').value) || 0;
+
+    if (!pcSelect) {
+        alert("Selecciona un PC válido que esté ocupado.");
+        return;
+    }
+
+    if (horasExtra === 0 && montoExtra === 0) {
+        alert("Debes agregar al menos horas o un monto extra.");
+        return;
+    }
+
+    // Actualiza el temporizador y aumenta las horas asignadas del PC
+    const pcIndex = estadoPCs.findIndex(p => p.id === pcSelect);
+    if (pcIndex !== -1 && estadoPCs[pcIndex].estado === 'Ocupado') {
+        estadoPCs[pcIndex].horasAsignadas += horasExtra;
+    }
+
+    const clienteIndex = registroClientes.findIndex(c => c.pc === pcSelect && c.activo === true);
+    if (clienteIndex !== -1) {
+        registroClientes[clienteIndex].horas += horasExtra;
+        registroClientes[clienteIndex].monto += montoExtra;
+    }
+
+    alert(`Se han añadido correctamente los extras al ${pcSelect}.`);
+    
+    // Reinicia el formulario
+    document.getElementById('form-extras').reset();
+    document.getElementById('horas-extra').value = 0;
+    document.getElementById('monto-extra').value = 0;
+    
+    cargarOpcionesPCsActivos();
+}
+// ==========================================
+// CÁLCULO AUTOMÁTICO PARA HORAS EXTRA
+// ==========================================
+document.getElementById('horas-extra').addEventListener('input', function() {
+    const horasExtra = parseInt(this.value) || 0;
+    const inputMontoExtra = document.getElementById('monto-extra');
+    
+    // Calcula el monto extra basado en las horas y la tarifa ya definida
+    inputMontoExtra.value = horasExtra * TARIFA_POR_HORA;
+});
 
 function cerrarSesion() { window.location.href = 'index.html'; }
 function irConfiguraciones() { alert("Configuraciones del encargado..."); }

@@ -115,7 +115,7 @@
                 <input type="text" id="servicio-cli" placeholder="Bebida, snack, impresión...">
                 
                 <label>Monto a Pagar ($):</label>
-                <input type="number" id="monto-cli" required min="0" placeholder="Ej. 5000">
+                <input type="number" id="monto-cli" required min="0" placeholder="Calculado automáticamente" style="background-color: #f4f6f8;">
 
                 <div class="espacio-botones">
                     <button type="submit">Guardar Registro Temporal</button>
@@ -166,11 +166,28 @@
             </table>
         </div>
     </section>
-
+    <!-- 5. Agregar Servicio -->
     <section id="sec-agregar-servicio" class="contenido-panel seccion-funcional oculto">
-        <div class="tarjeta-trabajo"><h2>Catálogo de Servicios Adicionales</h2></div>
-    </section>
+        <div class="tarjeta-trabajo">
+            <h2>Agregar Extras a Sesión Activa</h2>
+            <form id="form-extras" onsubmit="guardarExtra(event)">
+                <label>Seleccionar PC Ocupado:</label>
+                <select id="pc-extra" style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; border-radius: 5px;" required>
+                    <!-- Las opciones se cargarán con JS -->
+                </select>
 
+                <label>Horas adicionales a sumar:</label>
+                <input type="number" id="horas-extra" min="0" value="0" placeholder="Ej. 1">
+                
+                <label>Monto extra a cobrar ($):</label>
+                <input type="number" id="monto-extra" min="0" value="0" placeholder="Ej. 1500 (Bebida o snack)">
+
+                <div class="espacio-botones">
+                    <button type="submit">Aplicar Extras</button>
+                </div>
+            </form>
+        </div>
+    </section>
     <section id="sec-consultar-registro" class="contenido-panel seccion-funcional oculto">
         <div class="tarjeta-trabajo"><h2>Agenda y Reservas</h2></div>
     </section>
