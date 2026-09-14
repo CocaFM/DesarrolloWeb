@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliente - CyberCaté</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-encargado layout-panel">
+
+    <!-- Cabecera Superior -->
+    <header class="cabecera-dashboard">
+        <div class="cabecera-izquierda">
+            <button id="btn-volver" class="btn-atras oculto" onclick="volverAlMenu()" title="Volver al menú principal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icono-casa" style="width: 24px; height: 24px; margin-top: 4px;">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+            </button>
+            <h1 class="cabecera-titulo">Cliente<span id="texto-ruta" class="ruta-pequena"></span></h1>
+        </div>
+        
+        <div class="cabecera-derecha perfil-contenedor">
+            <button class="btn-perfil" onclick="toggleMenuPerfil()" title="Perfil del Cliente">C</button>
+            <div id="menu-perfil" class="menu-desplegable">
+                <button onclick="cerrarSesion()">Cerrar sesión</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MENÚ PRINCIPAL -->
+    <main id="menu-principal-cliente" class="contenido-panel activo">
+        <div class="grilla-botones" style="grid-template-columns: 1fr; max-width: 350px; margin: 50px auto;">
+            <div class="item-grilla" style="text-align: center;">
+                <button class="btn-consultar-registro" onclick="abrirSeccion('sec-agendar-hora', 'Agendar Hora')"></button>
+                <p>Agendar Hora</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- AGENDAR HORA -->
+    <section id="sec-agendar-hora" class="contenido-panel seccion-funcional oculto">
+        <div class="tarjeta-trabajo" style="max-width: 600px; margin: 0 auto;">
+            <h2>Reserva tu espacio</h2>
+            <p style="margin-bottom: 20px; color: #ddd;">Elige la fecha, horas de uso y agrega los servicios que necesites.</p>
+            
+            <form id="form-reserva-cliente" onsubmit="confirmarReserva(event)">
+                <label>Fecha y Hora de la Reserva:</label>
+                <input type="datetime-local" id="fecha-reserva" required style="width: 100% !important;">
+                
+                <label>Cantidad de horas de uso:</label>
+                <input type="number" id="horas-reserva" required min="1" placeholder="Ej. 2" style="width: 100% !important;">
+                
+                <div style="background: rgba(0,0,0,0.15); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                    <label style="margin-bottom: 10px; display: block; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 5px;">Servicios Extra (Opcional):</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; margin: 0; cursor: pointer;">
+                            <input type="checkbox" class="extra-checkbox" value="Impresiones" data-precio="500"> Impresiones (+$500)
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; margin: 0; cursor: pointer;">
+                            <input type="checkbox" class="extra-checkbox" value="Escáner" data-precio="300"> Escáner (+$300)
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; margin: 0; cursor: pointer;">
+                            <input type="checkbox" class="extra-checkbox" value="Bebida" data-precio="1200"> Bebida (+$1.200)
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; margin: 0; cursor: pointer;">
+                            <input type="checkbox" class="extra-checkbox" value="Snack" data-precio="800"> Snack (+$800)
+                        </label>
+                    </div>
+                </div>
+                
+                <label>Precio Total ($):</label>
+                <input type="number" id="monto-reserva" required min="0" placeholder="Calculado automáticamente" style="background-color: #f4f6f8; color: #333; font-weight: bold; width: 100% !important;" readonly>
+
+                <div class="espacio-botones">
+                    <button type="submit" style="background-color: #2ecc71; font-weight: bold; font-size: 16px;">Confirmar Reserva</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Script integrado -->
+    <script src="script_cliente.js"></script>
+</body>
+</html>
