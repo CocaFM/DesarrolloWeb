@@ -9,7 +9,6 @@
 
 /* ========================================== */
 /*           ESTILOS GLOBALES                 */
-/* ========================================== */
 body {
     background-color: var(--color-fondo-pagina);
     font-family: var(--fuente-general);
@@ -32,8 +31,7 @@ body.bg-cliente {
     background-color: rgb(76, 80, 37);
 }
 /* ========================================== */
-/*          PÁGINA DE INICIO         */
-/* ========================================== */
+/*          PÁGINA DE INICIO                  */
 .contenedor-principal {
     width: 100%;
     max-width: 500px;
@@ -87,7 +85,7 @@ label {
     font-size: 14px;
 }
 
-/* Bloque general (el que engrosó los campos) */
+
 input[type="email"], input[type="text"], input[type="password"], input[type="number"], input[type="datetime-local"], input[type="date"], select {
     width: 100%;
     padding: 14px; 
@@ -99,25 +97,25 @@ input[type="email"], input[type="text"], input[type="password"], input[type="num
     box-sizing: border-box; 
 }
 
-/* Horas y PC a utilizar: 25% (Un cuarto del espacio) */
+
 #horas-cli, #horas-reserva, #horas-extra, #pc-cli, #pc-extra, select[id^="pc-llegada"] {
     width: 25% !important; 
     min-width: 120px; 
 }
 
-/* Montos: 33% (Un tercio del espacio) */
+
 #monto-cli, #monto-reserva, #monto-extra {
     width: 33% !important; 
     min-width: 150px;
 }
 
-/* Fecha y Hora de reserva: 40% */
+
 #fecha-reserva {
     width: 40% !important; 
     min-width: 200px;
 }
 
-/* Acompañantes (Gatos): Reducido al 35% forzando sobre el HTML */
+
 #gato-cli, select[id^="gato-llegada"] {
     width: 35% !important;
     min-width: 160px;
@@ -125,7 +123,6 @@ input[type="email"], input[type="text"], input[type="password"], input[type="num
 
 /* ========================================== */
 /*        PANELES GENÉRICOS Y CABECERAS       */
-/* ========================================== */
 body.layout-panel {
     display: block; 
     color: white;
@@ -151,9 +148,9 @@ body.dashboard-layout {
     font-size: 22px;
     margin: 0;
     font-family: var(--fuente-bienvenido);
-    display: flex; /* Fuerza que los elementos se alineen en fila */
+    display: flex; 
     align-items: center;
-    white-space: nowrap; /* Evita que el texto baje a la siguiente línea */
+    white-space: nowrap; 
 }
 
 .cabecera-izquierda {
@@ -163,7 +160,6 @@ body.dashboard-layout {
 
 /* ========================================== */
 /*           MENÚ DE PERFIL Y BOTONES         */
-/* ========================================== */
 .perfil-contenedor {
     position: relative;
 }
@@ -226,7 +222,6 @@ body.dashboard-layout {
 
 /* ========================================== */
 /*        NAVEGACIÓN INTERNA Y TABLAS         */
-/* ========================================== */
 .ruta-pequena, .subtitulo-dinamico {
     font-size: 16px;
     font-weight: normal;
@@ -303,8 +298,7 @@ body.dashboard-layout .tarjeta-trabajo {
 }
 
 /* ========================================== */
-/*        GRILLA DE BOTONES (ENCARGADO)       */
-/* ========================================== */
+/*        BOTONES (ENCARGADO)                 */
 .grilla-botones {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -326,7 +320,6 @@ body.dashboard-layout .tarjeta-trabajo {
     margin-left: 3px; 
 }
 
-/* Restringido para que solo afecte a los botones GRANDES del menú */
 .grilla-botones [class*="btn-"] {
     width: 100%;
     aspect-ratio: 5 / 3; 
@@ -347,11 +340,10 @@ body.dashboard-layout .tarjeta-trabajo {
     background-color: #2980b9;
 }
 
-/* Diseño del botón gigante de Cierre de Caja */
 .btn-cierre-caja-final {
     width: 100%;
-    max-width: 10000px; /* Permite que abarque casi toda la pantalla */
-    aspect-ratio: 5 / 4; /* Proporción ancha para que sea un panel gigante */
+    max-width: 10000px; 
+    aspect-ratio: 5 / 4; 
     background-color: var(--color-botones);
     background-image: url('imagenes/cierre-caja-boton.png');
     background-size: cover; 
@@ -372,7 +364,6 @@ body.dashboard-layout .tarjeta-trabajo {
     filter: brightness(0.9);
 }
 
-/* Imágenes específicas */
 .btn-estados-pc { background-image: url('imagenes/estados-pc.png'); }
 .btn-agregar-cliente { background-image: url('imagenes/agregar-cliente.png'); }
 .btn-acompanantes { background-image: url('imagenes/acompanantes.png'); }
@@ -382,7 +373,6 @@ body.dashboard-layout .tarjeta-trabajo {
 .btn-cierre-caja { background-image: url('imagenes/cierre-caja.png'); }
 .btn-cierre-caja-boton { background-image: url('imagenes/cierre-caja-boton.png'); color: black; font-weight: bold; }
 
-/* Ajuste para el menú de cambiar acompañante extra */
 #cambio-gato-extra {
     width: 45% !important;
     min-width: 200px;
@@ -390,8 +380,7 @@ body.dashboard-layout .tarjeta-trabajo {
 
 
 /* ========================================== */
-/* ESTILOS DE ETIQUETAS (TAGS) COMPACTAS      */
-/* ========================================== */
+/* ESTILOS DE ETIQUETAS                       */
 .tag-servicio {
     background-color: #f1c40f; 
     color: black; 
@@ -403,13 +392,13 @@ body.dashboard-layout .tarjeta-trabajo {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    width: fit-content; /* Solo ocupa el tamaño de la palabra */
-    white-space: nowrap; /* Evita que el texto se rompa en dos líneas */
+    width: fit-content; 
+    white-space: nowrap; 
     transition: background-color 0.2s;
 }
 
 .tag-gato {
-    background-color: #e67e22; /* Color naranja para diferenciar */
+    background-color: #e67e22; 
     color: white; 
     border: 1px solid #d35400;
     padding: 5px 12px;
@@ -424,7 +413,6 @@ body.dashboard-layout .tarjeta-trabajo {
     transition: background-color 0.2s;
 }
 
-/* El botón de la 'X' para eliminar ambas etiquetas */
 .tag-eliminar {
     cursor: pointer;
     font-weight: bold;
@@ -445,8 +433,7 @@ body.dashboard-layout .tarjeta-trabajo {
 
 /* ========================================== */
 /* CENTRADO DE LA TABLA DE ACOMPAÑANTES       */
-/* ========================================== */
-/* Centra todas las columnas excepto la primera (Nombre) */
+
 #sec-estado-acompanantes .tabla-datos th:not(:first-child),
 #sec-estado-acompanantes .tabla-datos td:not(:first-child) {
     text-align: center;
@@ -455,7 +442,7 @@ body.dashboard-layout .tarjeta-trabajo {
 
 /* ========================================== */
 /* MODAL PARA CAMBIO DE HORARIO               */
-/* ========================================== */
+
 .modal-superpuesto {
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -476,15 +463,13 @@ body.dashboard-layout .tarjeta-trabajo {
     color: #333;
 }
 
-/* Ajuste para el menú de cambiar acompañante principal */
 #cambio-gato-extra {
     width: 80% !important;
     min-width: 200px;
 }
 
-/* Diseño de la etiqueta interactiva para los gatos extra */
 .tag-gato {
-    background-color: #e67e22; /* Color naranja para diferenciar de los servicios */
+    background-color: #e67e22;
     color: white; 
     border: 1px solid #d35400;
     padding: 5px 12px;
@@ -499,7 +484,7 @@ body.dashboard-layout .tarjeta-trabajo {
 
 /* ========================================== */
 /*        BOTONES DEL MENÚ ADMINISTRADOR      */
-/* ========================================== */
+
 .btn-admin-equipos { background-image: url('imagenes/admin-equipos.png'); }
 .btn-admin-precios { background-image: url('imagenes/admin-precios.png'); }
 .btn-admin-cuentas { background-image: url('imagenes/admin-cuentas.png'); }

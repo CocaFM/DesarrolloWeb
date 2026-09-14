@@ -1,6 +1,5 @@
 // ==========================================================================
 // PANEL DE CLIENTE
-// ==========================================================================
 
 const TARIFA_POR_HORA = 2500;
 
@@ -38,7 +37,7 @@ function volverAlMenu() {
     document.getElementById('btn-volver').classList.add('oculto');
     
     document.getElementById('form-reserva-cliente').reset();
-    calcularTotal(); // Reinicia el precio a 0 al volver
+    calcularTotal();
 }
 
 // MENÚ DE PERFIL
@@ -62,33 +61,25 @@ function cerrarSesion() {
 
 // ==========================================================================
 // CÁLCULO
-// ==========================================================================
 function calcularTotal() {
-    //  Obtener precio de las horas
     const inputHoras = document.getElementById('horas-reserva');
     const horas = parseInt(inputHoras.value) || 0;
     let total = horas * TARIFA_POR_HORA;
 
-    // Sumar el precio de los extras marcados
     const extras = document.querySelectorAll('.extra-checkbox');
     extras.forEach(checkbox => {
         if (checkbox.checked) {
-            // Extraemos el valor del atributo "data-precio" de cada checkbox
             total += parseInt(checkbox.getAttribute('data-precio'));
         }
     });
 
-    // Mostrar en el input del monto total
     const inputMontoReserva = document.getElementById('monto-reserva');
     if (inputMontoReserva) {
         inputMontoReserva.value = total > 0 ? total : '';
     }
 }
 
-
 document.getElementById('horas-reserva').addEventListener('input', calcularTotal);
-
-// Escuchar cambios en los checkboxes de los extras
 const checkboxesExtra = document.querySelectorAll('.extra-checkbox');
 checkboxesExtra.forEach(checkbox => {
     checkbox.addEventListener('change', calcularTotal);
@@ -97,7 +88,6 @@ checkboxesExtra.forEach(checkbox => {
 
 // ==========================================================================
 // CONFIRMAR RESERVA
-// ==========================================================================
 function confirmarReserva(evento) {
     evento.preventDefault();
     

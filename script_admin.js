@@ -1,59 +1,50 @@
 
 // ==========================================================================
 // 1. NAVEGACIÓN ENTRE SUBPÁGINAS Y MENÚ PRINCIPAL
-// ==========================================================================
 
 function abrirSeccion(idSeccion, nombreSeccion) {
-    // 1. Ocultar el menú principal de grilla
     document.getElementById('menu-principal-admin').classList.remove('activo');
     document.getElementById('menu-principal-admin').classList.add('oculto');
 
-    // 2. Ocultar todas las secciones funcionales para limpiar la pantalla
     const secciones = document.querySelectorAll('.seccion-funcional');
     secciones.forEach(sec => {
         sec.classList.remove('activo');
         sec.classList.add('oculto');
     });
 
-    // 3. Mostrar la sección específica que el usuario cliqueó
     const seccionActiva = document.getElementById(idSeccion);
     if (seccionActiva) {
         seccionActiva.classList.remove('oculto');
         seccionActiva.classList.add('activo');
     }
 
-    // 4. Actualizar el texto superior para mostrar la ruta y revelar la casa
     document.getElementById('texto-ruta').innerText = ` : ${nombreSeccion}`;
     document.getElementById('btn-volver').classList.remove('oculto');
 }
 
 function volverAlMenu() {
-    // 1. Ocultar todas las subpáginas
     const secciones = document.querySelectorAll('.seccion-funcional');
     secciones.forEach(sec => {
         sec.classList.remove('activo');
         sec.classList.add('oculto');
     });
 
-    // 2. Traer de vuelta el menú principal
     document.getElementById('menu-principal-admin').classList.remove('oculto');
     document.getElementById('menu-principal-admin').classList.add('activo');
 
-    // 3. Limpiar la ruta y ocultar el botón de la casa
     document.getElementById('texto-ruta').innerText = '';
     document.getElementById('btn-volver').classList.add('oculto');
 }
 
 // ==========================================================================
 // 2. MENÚ DE PERFIL Y GESTIÓN DE SESIÓN
-// ==========================================================================
 
 function toggleMenuPerfil() {
     const menu = document.getElementById('menu-perfil');
     if (menu) menu.classList.toggle('activo');
 }
 
-// Cierra el menú desplegable si se cliquea en cualquier otra parte de la pantalla
+
 window.onclick = function(evento) {
     if (!evento.target.matches('.btn-perfil')) {
         const menus = document.getElementsByClassName('menu-desplegable');
@@ -66,7 +57,6 @@ window.onclick = function(evento) {
 }
 
 function cerrarSesion() {
-    // Redirige de vuelta al login general
     window.location.href = 'index.html';
 }
 
@@ -75,9 +65,7 @@ function irConfiguraciones() {
 }
 // ==========================================================================
 // 3. GESTIÓN DE EQUIPOS (PCs) - CONECTADO CON ENCARGADO
-// ==========================================================================
 
-// 1. Cargar desde LocalStorage o crear los 12 PCs por defecto la primera vez
 let inventarioPCs = JSON.parse(localStorage.getItem('cybercate_pcs')) || [
     { id: 'PC 01', estado: 'Disponible' },
     { id: 'PC 02', estado: 'Disponible' },
@@ -93,21 +81,18 @@ let inventarioPCs = JSON.parse(localStorage.getItem('cybercate_pcs')) || [
     { id: 'PC 12', estado: 'Disponible' }
 ];
 
-// 2. Función clave que guarda los cambios en el navegador
 function guardarCambiosEnStorage() {
     localStorage.setItem('cybercate_pcs', JSON.stringify(inventarioPCs));
 }
 
 
 function renderizarTablaPCs() {
-    // Sincronizar siempre con la base de datos más reciente
     inventarioPCs = JSON.parse(localStorage.getItem('cybercate_pcs')) || inventarioPCs;
     
     const cuerpoTabla = document.getElementById('cuerpo-tabla-pcs');
     if (!cuerpoTabla) return;
     cuerpoTabla.innerHTML = '';
 
-    // Evitar que la tabla salte de tamaño
     const tabla = cuerpoTabla.closest('table');
     if(tabla) tabla.style.tableLayout = 'fixed';
 
@@ -115,7 +100,6 @@ function renderizarTablaPCs() {
         const fila = document.createElement('tr');
         let colorEstado = pc.estado === 'Disponible' ? '#2ecc71' : (pc.estado === 'Mantenimiento' ? '#f1c40f' : '#e74c3c');
         
-        // Formatear texto si está ocupado
         let textoEstado = pc.estado;
         if (pc.estado === 'Ocupado') {
             textoEstado = pc.cliente ? `Ocupado (${pc.cliente})` : 'Ocupado';
@@ -149,7 +133,7 @@ function agregarPC(evento) {
     }
 
     inventarioPCs.push({ id: nombre, estado: estado });
-    guardarCambiosEnStorage(); // GUARDAMOS EL NUEVO PC
+    guardarCambiosEnStorage(); 
     alert(`El equipo ${nombre} ha sido agregado exitosamente.`);
     
     inputNombre.value = '';
@@ -166,8 +150,7 @@ function cambiarEstadoPC(id) {
         
         const estadoActual = inventarioPCs[pcIndex].estado;
         inventarioPCs[pcIndex].estado = estadoActual === 'Disponible' ? 'Mantenimiento' : 'Disponible';
-        
-        guardarCambiosEnStorage(); // GUARDAMOS EL CAMBIO DE ESTADO
+        guardarCambiosEnStorage();
         renderizarTablaPCs();
     }
 }
@@ -189,9 +172,7 @@ function eliminarPC(id) {
 document.addEventListener('DOMContentLoaded', renderizarTablaPCs);
 // ==========================================================================
 // 4. CONFIGURACIÓN DE PRECIOS GLOBALES
-// ==========================================================================
 
-// 1. Cargar precios desde LocalStorage o usar valores por defecto (en CLP)
 let preciosGlobales = JSON.parse(localStorage.getItem('cybercate_precios')) || {
     horaBase: 2500,
     horaExtra: 1000,
@@ -202,10 +183,10 @@ let preciosGlobales = JSON.parse(localStorage.getItem('cybercate_precios')) || {
     imprimir: 500
 };
 
-// 2. Inyectar los valores guardados en el formulario de HTML
+
 function cargarPreciosEnFormulario() {
     const form = document.getElementById('form-precios');
-    if (!form) return; // Si la sección no existe, no hacemos nada
+    if (!form) return; 
 
     document.getElementById('precio-hora-base').value = preciosGlobales.horaBase;
     document.getElementById('precio-hora-extra').value = preciosGlobales.horaExtra;
@@ -215,9 +196,9 @@ function cargarPreciosEnFormulario() {
     document.getElementById('precio-snack').value = preciosGlobales.snack;
 }
 
-// 3. Guardar los nuevos valores enviados por el Administrador
+
 function guardarPrecios(evento) {
-    evento.preventDefault(); // Evita que la página se recargue
+    evento.preventDefault(); 
     
     preciosGlobales = {
         horaBase: parseInt(document.getElementById('precio-hora-base').value),
@@ -232,17 +213,14 @@ function guardarPrecios(evento) {
     alert("¡Los precios se han actualizado y guardado correctamente para todo el sistema!");
 }
 
-// Cargar los datos visuales al iniciar la página del Administrador
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof renderizarTablaPCs === 'function') renderizarTablaPCs();
-    cargarPreciosEnFormulario(); // Ejecutamos la carga del formulario de precios
+    cargarPreciosEnFormulario(); 
 });
 
 // ==========================================================================
-// 5. GESTIÓN DE CUENTAS (ENCARGADOS) Y CONEXIÓN CON LOGIN
-// ==========================================================================
+// 5. GESTIÓN DE CUENTAS Y CONEXIÓN CON 1 pantalla
 
-// Cargar la base de datos de encargados (si no existe, crea una por defecto)
 let cuentasEncargados = JSON.parse(localStorage.getItem('cybercate_encargados')) || [
     { id: 1, nombre: 'Encargado Principal', correo: 'encargado@mail.com', pass: '123' }
 ];
@@ -304,11 +282,9 @@ function eliminarCuenta(id, nombre) {
 }
 
 function desconectarCuenta(nombre) {
-    // Al ser un entorno frontend, simulamos la alerta de desconexión.
     alert(`[Señal enviada]\nSe ha forzado el cierre de sesión remoto para el encargado: ${nombre}.`);
 }
 
-// ---- LÓGICA DEL MODAL DE EDICIÓN ----
 function abrirModalCuenta(id) {
     const cuenta = cuentasEncargados.find(c => c.id === id);
     if(cuenta) {
@@ -332,7 +308,7 @@ function guardarEdicionCuenta() {
 
     const index = cuentasEncargados.findIndex(c => c.id === id);
     if(index !== -1) {
-        // Verificar que el correo no lo tenga ya otra persona
+
         const correoOcupado = cuentasEncargados.find(c => c.correo === correo && c.id !== id);
         if(correoOcupado) {
             alert("Error: Este correo electrónico ya lo está usando otra cuenta.");
@@ -350,15 +326,13 @@ function guardarEdicionCuenta() {
     }
 }
 
-// Inyectar el renderizado al cargar la página
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof renderizarCuentas === 'function') renderizarCuentas();
 });
 
 
 // ==========================================================================
-// 6. GESTIÓN DE ACOMPAÑANTES (GATOS)
-// ==========================================================================
+// 6. GESTIÓN DE ACOMPAÑANTES
 
 let inventarioGatos = JSON.parse(localStorage.getItem('cybercate_gatos')) || [
     { id: 1, nombre: 'Estrella', tipo: 'Siamesa', llego: 'Sí', horario: '09:00 - 15:00', estado: 'Disponible', asignacion: 'Ninguna' },
@@ -413,7 +387,7 @@ function agregarGato(evento) {
         id: Date.now(),
         nombre: nombre,
         tipo: tipo,
-        llego: 'Sí', // Valores por defecto para que el encargado lo gestione en su turno
+        llego: 'Sí',
         horario: '09:00 - 15:00',
         estado: 'Disponible',
         asignacion: 'Ninguna'
@@ -439,7 +413,7 @@ function eliminarGato(id, nombre) {
     }
 }
 
-// ---- LÓGICA DEL MODAL DE EDICIÓN DE GATOS ----
+// ---- LÓGICA DEL MODAL DE EDICIÓN-GATOS ----
 function abrirModalGato(id) {
     const gato = inventarioGatos.find(g => g.id === id);
     if(gato) {
@@ -461,7 +435,6 @@ function guardarEdicionGato() {
 
     const index = inventarioGatos.findIndex(g => g.id === id);
     if(index !== -1) {
-        // Verificar que el nuevo nombre no choque con otro existente
         const nombreOcupado = inventarioGatos.find(g => g.nombre.toLowerCase() === nombre.toLowerCase() && g.id !== id);
         if(nombreOcupado) {
             alert("Error: Ya existe otro acompañante usando ese nombre.");
@@ -478,8 +451,6 @@ function guardarEdicionGato() {
     }
 }
 
-// INYECCIÓN DE ARRANQUE PARA TODAS LAS TABLAS DE ADMIN
-// (Busca el DOMContentLoaded anterior que tenías y asegúrate de que llame a renderizarGatos)
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof renderizarTablaPCs === 'function') renderizarTablaPCs();
     if (typeof cargarPreciosEnFormulario === 'function') cargarPreciosEnFormulario();

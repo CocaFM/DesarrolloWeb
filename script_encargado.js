@@ -1,9 +1,7 @@
 // ==========================================================================
 // 1. MEMORIA TEMPORAL Y BASES DE DATOS
-// ==========================================================================
 let registroClientes = [];
 
-// Cargar desde LocalStorage para estar sincronizado con el Administrador
 let estadoGatos = JSON.parse(localStorage.getItem('cybercate_gatos')) || [
     { id: 1, nombre: 'Estrella', tipo: 'Siamesa', llego: 'Sí', horario: '09:00 - 15:00', estado: 'Disponible', asignacion: 'Ninguna' },
     { id: 2, nombre: 'Simba', tipo: 'Naranja/Atigrado', llego: 'Sí', horario: '10:00 - 16:00', estado: 'Disponible', asignacion: 'Ninguna' },
@@ -19,12 +17,10 @@ let estadoGatos = JSON.parse(localStorage.getItem('cybercate_gatos')) || [
     { id: 12, nombre: 'Nieve', tipo: 'Angora Blanco', llego: 'Sí', horario: '09:00 - 13:00', estado: 'Disponible', asignacion: 'Ninguna' }
 ];
 
-// Nueva función para guardar los cambios de los gatos
 function sincronizarGatosEncargado() {
     localStorage.setItem('cybercate_gatos', JSON.stringify(estadoGatos));
 }
 
-// Cargar desde LocalStorage para estar sincronizado con el Administrador
 let estadoPCs = JSON.parse(localStorage.getItem('cybercate_pcs')) || [
     { id: 'PC 01', estado: 'Disponible' },
     { id: 'PC 02', estado: 'Disponible' },
@@ -40,12 +36,10 @@ let estadoPCs = JSON.parse(localStorage.getItem('cybercate_pcs')) || [
     { id: 'PC 12', estado: 'Disponible' }
 ];
 
-// Función para guardar los cambios en uso (Ocupar/Desocupar)
 function sincronizarPCsEncargado() {
     localStorage.setItem('cybercate_pcs', JSON.stringify(estadoPCs));
 }
 
-// Cargar precios dinámicos desde el Administrador (si no existen, usa valores por defecto)
 function obtenerPreciosActuales() {
     return JSON.parse(localStorage.getItem('cybercate_precios')) || {
         horaBase: 2500,
@@ -63,7 +57,6 @@ let intervaloTimerPCs = null;
 
 // ==========================================================================
 // 2. NAVEGACIÓN ENTRE SUBPÁGINAS
-// ==========================================================================
 
 function abrirSeccion(idSeccion, nombreSeccion) {
     document.getElementById('menu-principal-encargado').classList.remove('activo');
@@ -84,7 +77,6 @@ function abrirSeccion(idSeccion, nombreSeccion) {
     document.getElementById('texto-ruta').innerText = ` : ${nombreSeccion}`;
     document.getElementById('btn-volver').classList.remove('oculto');
 
-    // Cargas dinámicas
     if (idSeccion === 'sec-agregar-cliente') {
         cargarOpcionesGatos();
         cargarOpcionesPCs(); 
@@ -133,7 +125,6 @@ function irConfiguraciones() { alert("Configuraciones del encargado..."); }
 
 // ==========================================================================
 // 3. AGREGAR CLIENTE NUEVO (Y SU CÁLCULO DE TARIFA CON TAGS)
-// ==========================================================================
 const TARIFA_POR_HORA = precios.horaBase;
 let serviciosSeleccionadosCli = [];
 
@@ -175,13 +166,11 @@ function actualizarMontoCli() {
     const horas = parseInt(document.getElementById('horas-cli').value) || 0;
     let total = horas * TARIFA_POR_HORA;
 
-    // NUEVO: Sumar el precio base del gato si hay uno seleccionado
     const gatoElegido = document.getElementById('gato-cli').value;
     if (gatoElegido !== "") {
         total += precios.gatoBase;
     }
 
-    // Sumar servicios adicionales seleccionados (Tags)
     serviciosSeleccionadosCli.forEach(s => total += s.precio);
     
     const inputMonto = document.getElementById('monto-cli');
@@ -191,7 +180,6 @@ function actualizarMontoCli() {
 const inputHorasCli = document.getElementById('horas-cli');
 if (inputHorasCli) inputHorasCli.addEventListener('input', actualizarMontoCli);
 
-// NUEVA LÍNEA: Recalcular el total al seleccionar un gato
 const selectGatoCli = document.getElementById('gato-cli');
 if (selectGatoCli) selectGatoCli.addEventListener('change', actualizarMontoCli);
 
@@ -242,7 +230,6 @@ function guardarClienteTemporal(evento) {
     alert(`Cliente registrado. PC asignado: ${pcSelect}.`);
     document.getElementById('form-cliente').reset();
     
-    // Reiniciar los Tags de Cliente
     serviciosSeleccionadosCli = [];
     actualizarTagsServiciosCli();
     
@@ -255,7 +242,6 @@ function guardarClienteTemporal(evento) {
 
 // ==========================================================================
 // 4. GESTIÓN DE ACOMPAÑANTES Y MODAL DE HORARIOS
-// ==========================================================================
 
 function actualizarTablaGatos() {
     const cuerpoGatos = document.getElementById('cuerpo-gatos');
@@ -271,12 +257,10 @@ function actualizarTablaGatos() {
         
         let botonLlegada = `<button onclick="alternarLlegada(${gato.id})" style="background-color: ${colorBoton}; color: white; border: none; padding: 5px 0; width: 45px; border-radius: 5px; cursor: pointer; font-weight: bold; text-align: center; margin: 0 auto; display: block;">${gato.llego}</button>`;
         
-        // Botón de lápiz sin márgenes extraños
         let btnHorario = `<button onclick="abrirModalHorario(${gato.id}, '${gato.horario}')" style="background: none; border: none; cursor: pointer; font-size: 16px; margin-left: 8px; padding: 0;" title="Modificar horario">✏️</button>`;
 
         const fila = document.createElement('tr');
         
-        // Flexbox en el horario para forzar una línea
         fila.innerHTML = `
             <td style="width: 15%;"><strong>${gato.nombre}</strong></td>
             <td style="width: 25%;">${gato.tipo}</td>
@@ -351,13 +335,10 @@ function guardarHorario() {
     cerrarModalHorario();
 }
 
-
 // ==========================================================================
 // 5. ESTADOS DEL PC (RELOJ Y MONITOREO)
-// ==========================================================================
 
 function actualizarVistaPCs() {
-    // NUEVA LÍNEA: Actualiza la lista por si el Admin hizo cambios
     estadoPCs = JSON.parse(localStorage.getItem('cybercate_pcs')) || estadoPCs;
 
     const contenedor = document.getElementById('contenedor-pcs');
@@ -420,10 +401,8 @@ function actualizarVistaPCs() {
     }, 60000);
 }
 
-
 // ==========================================================================
 // 6. HISTORIAL Y CIERRE DE CAJA (FINALIZAR SESIONES)
-// ==========================================================================
 
 function actualizarTablaHistorial() {
     const cuerpoTabla = document.getElementById('cuerpo-historial');
@@ -467,7 +446,6 @@ function terminarSesion(pc, gato){
         delete estadoPCs[pcIndex].horaInicioStr;
     }
 
-    // Liberar cualquier cantidad de gatos asignados
 if(gato && gato !== 'Sin acompañante'){
     let gatosALiberar = gato.split(', ');
     gatosALiberar.forEach(g => {
@@ -491,7 +469,6 @@ if(gato && gato !== 'Sin acompañante'){
 
 // ==========================================================================
 // 7. MODIFICAR SESIÓN (SERVICIOS ADICIONALES Y GATOS EXTRA)
-// ==========================================================================
 
 const COSTO_GATO_EXTRA = precios.gatoExtra;
 let serviciosSeleccionados = [];
@@ -555,7 +532,6 @@ function actualizarSumaTotalExtra() {
 }
 
 function actualizarTextosPreciosUI() {
-    // 1. Actualizar las opciones en "Agregar Cliente Nuevo"
     const opcionesSrvCli = document.getElementById('select-add-servicio-cli');
     if (opcionesSrvCli) {
         for (let i = 0; i < opcionesSrvCli.options.length; i++) {
@@ -567,7 +543,6 @@ function actualizarTextosPreciosUI() {
         }
     }
 
-    // 2. Actualizar las opciones en "Modificar Sesión (Extras)"
     const opcionesSrvExtra = document.getElementById('select-add-servicio');
     if (opcionesSrvExtra) {
         for (let i = 0; i < opcionesSrvExtra.options.length; i++) {
@@ -580,10 +555,9 @@ function actualizarTextosPreciosUI() {
     }
 }
 
-// INICIALIZACIÓN DE LOS 3 MENÚS DE TAGS (NATIVOS)
+
 document.addEventListener('DOMContentLoaded', () => {
     actualizarTextosPreciosUI();
-    // A. Menú de Servicios (Modificar Sesión)
     const selectSrv = document.getElementById('select-add-servicio');
     if (selectSrv) {
         selectSrv.addEventListener('change', (e) => {
@@ -591,7 +565,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const nombreServicio = e.target.value;
             let precioAsignado = 0;
             
-            // Asignar precio dinámico según el nombre
             if (nombreServicio.includes("Hora Extra")) precioAsignado = precios.horaExtra;
             else if (nombreServicio.includes("Bebida")) precioAsignado = precios.bebida;
             else if (nombreServicio.includes("Snack")) precioAsignado = precios.snack;
@@ -601,7 +574,7 @@ document.addEventListener('DOMContentLoaded', () => {
             serviciosSeleccionados.push({
                 id: Date.now() + Math.random(), 
                 nombre: nombreServicio,
-                precio: precioAsignado, // Usa el JSON en lugar del HTML
+                precio: precioAsignado,
                 horas: parseInt(selectedOption.getAttribute('data-horas')) || 0
             });
             actualizarTagsServicios();
@@ -609,7 +582,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // B. Menú de Gatos Extra (Modificar Sesión)
     const selectGato = document.getElementById('select-add-gato');
     if (selectGato) {
         selectGato.addEventListener('change', (e) => {
@@ -631,7 +603,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // C. Menú de Servicios (Agregar Cliente Nuevo)
     const selectSrvCli = document.getElementById('select-add-servicio-cli');
     if (selectSrvCli) {
         selectSrvCli.addEventListener('change', (e) => {
@@ -647,7 +618,7 @@ document.addEventListener('DOMContentLoaded', () => {
             serviciosSeleccionadosCli.push({
                 id: Date.now() + Math.random(), 
                 nombre: nombreServicio,
-                precio: precioAsignado // Usa el JSON en lugar del HTML
+                precio: precioAsignado
             });
             actualizarTagsServiciosCli();
             e.target.value = ""; 
@@ -655,7 +626,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Lógica Visual y de Eliminación de los 3 tipos de Tags
 function actualizarTagsServicios() {
     const contenedor = document.getElementById('tags-servicios');
     if (!contenedor) return;
@@ -723,14 +693,13 @@ function guardarExtra(evento) {
     const clienteIndex = registroClientes.findIndex(c => c.pc === pcSelect && c.activo === true);
     if (pcIndex === -1 || clienteIndex === -1) { alert("No se encontró la sesión."); return; }
 
-    // Cobros y Horas
+
     if (montoExtra > 0) registroClientes[clienteIndex].monto += montoExtra;
     if (horasExtraTotales > 0) {
         estadoPCs[pcIndex].horasAsignadas += horasExtraTotales;
         registroClientes[clienteIndex].horas += horasExtraTotales;
     }
 
-    // Cambio de gato principal
     let acompañantesNuevos = estadoPCs[pcIndex].gato === 'Sin acompañante' ? [] : estadoPCs[pcIndex].gato.split(', ');
 
     if (nuevoGatoPrincipal !== "") {
@@ -755,7 +724,7 @@ function guardarExtra(evento) {
         }
     }
 
-    // Gatos Extra
+
     gatosExtraSeleccionados.forEach(nombreGato => {
         const idx = estadoGatos.findIndex(g => g.nombre === nombreGato);
         if (idx !== -1) {
@@ -787,7 +756,6 @@ function guardarExtra(evento) {
 
 // ==========================================================================
 // 8. AGENDA Y RESERVAS 
-// ==========================================================================
 
 let agendaReservas = [];
 let contadorReservas = 1;
@@ -904,7 +872,7 @@ function activarReserva(id) {
             const horaRegistroStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
             let nombreAcompanante = 'Sin acompañante';
-            let montoFinal = reserva.monto; // Creamos una variable para el cobro final
+            let montoFinal = reserva.monto; 
 
             if (gatoSeleccionado !== "") {
                 const gatoIndex = estadoGatos.findIndex(g => g.nombre === gatoSeleccionado);
@@ -913,7 +881,6 @@ function activarReserva(id) {
                     estadoGatos[gatoIndex].asignacion = `Cliente: ${reserva.nombre} | ${pcSeleccionado}`;
                     nombreAcompanante = gatoSeleccionado;
                     
-                    // NUEVO: Sumamos el precio base del gato a la reserva
                     montoFinal += precios.gatoBase; 
                 }
             }
@@ -930,14 +897,14 @@ function activarReserva(id) {
                 pc: pcSeleccionado,
                 gato: nombreAcompanante,
                 horas: reserva.horas,
-                monto: montoFinal, // Reemplazamos reserva.monto por el monto recalculado
+                monto: montoFinal, 
                 activo: true
             });
 
             agendaReservas[reservaIndex].estado = 'Completada';
             actualizarTablaReservas();
-            sincronizarPCsEncargado(); // <--- ASEGÚRATE DE PONER ESTA TAMBIÉN
-            sincronizarGatosEncargado(); // <--- LÍNEA NUEVA
+            sincronizarPCsEncargado();
+            sincronizarGatosEncargado(); 
             alert(`Sesión iniciada con éxito. El ${pcSeleccionado} y ${nombreAcompanante} han sido asignados.`);
         }
     }

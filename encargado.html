@@ -12,7 +12,6 @@
     <header class="cabecera-dashboard">
         <div class="cabecera-izquierda">
             <button id="btn-volver" class="btn-atras oculto" onclick="volverAlMenu()" title="Volver al menú principal">
-                <!-- SVG de Casa Abstracta -->
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icono-casa" style="width: 24px; height: 24px; margin-top: 4px;">
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                     <polyline points="9 22 9 12 15 12 15 22"></polyline>
@@ -65,8 +64,7 @@
     </main>
 
     <!-- ========================================================== -->
-    <!--            SUBPÁGINAS INDIVIDUALES                           -->
-    <!-- ========================================================== -->
+    <!--            SUBPÁGINAS INDIVIDUALES         -->            
 
     <!-- 1. Estados del PC -->
     <section id="sec-estados" class="contenido-panel seccion-funcional oculto">
@@ -108,7 +106,6 @@
                 <label>Acompañante (Gato):</label>
                 <select id="gato-cli" style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; border-radius: 5px;">
                     <option value="">Ninguno</option>
-                    <!-- Las opciones cargarán con JS -->
                 </select>
 
                 <label>Servicio Adicional (Opcional):</label>
@@ -149,7 +146,6 @@
                     </tr>
                 </thead>
                 <tbody id="cuerpo-gatos">
-                    <!-- Los datos se insertan con JS -->
                 </tbody>
             </table>
         </div>
@@ -184,15 +180,13 @@
             <form id="form-extras" onsubmit="guardarExtra(event)">
                 <label>Seleccionar PC Ocupado:</label>
                 <select id="pc-extra" style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; border-radius: 5px;" required>
-                    <!-- Las opciones se cargarán con JS -->
                 </select>
 
                 <label>Servicios Adicionales:</label>
                 <div style="margin-bottom: 15px;">
-                    <!-- Aquí aparecerán los cuadraditos uno al lado del otro -->
                     <div id="tags-servicios" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;"></div>
                     
-                    <!-- Menú desplegable nativo -->
+                    <!-- Menú desplegable -->
                     <select id="select-add-servicio" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer;">
                         <option value="" disabled selected hidden>+ Despliega aquí para agregar un servicio...</option>
                         <option value="Bebida" data-precio="1500" data-horas="0">Bebida ($1,500)</option>
@@ -204,18 +198,14 @@
 
                 <label>Cambiar Acompañante Principal (Opcional):</label>
                 <select id="cambio-gato-extra">
-                    <!-- Opciones por JS -->
                 </select>
 
                 <label style="margin-top: 20px;">Agregar Acompañantes Extra (Máx. 4, +$2,000 c/u):</label>
                 <div style="margin-bottom: 15px;">
-                    <!-- Aquí aparecerán los cuadraditos de los gatos extra -->
                     <div id="tags-gatos" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;"></div>
                     
-                    <!-- Menú desplegable nativo -->
                     <select id="select-add-gato" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer;">
                         <option value="" disabled selected hidden>+ Despliega aquí para elegir acompañantes extra...</option>
-                        <!-- Las opciones cargarán con JS -->
                     </select>
                 </div>
                 
@@ -268,7 +258,6 @@
                     </tr>
                 </thead>
                 <tbody id="cuerpo-reservas">
-                    <!-- Los datos se insertan con JS -->
                 </tbody>
             </table>
         </div>

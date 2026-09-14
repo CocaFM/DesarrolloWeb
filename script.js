@@ -21,25 +21,23 @@ function procesarLogin(evento) {
     const correo = document.getElementById('correo-login').value.trim().toLowerCase();
     const password = document.getElementById('password-login').value.trim();
 
-    // 1. Acceso del Administrador
+    // Acceso del Administrador
     if (correo === "admin@mail.com" && password === "123") {
         window.location.href = 'admin.html';
         return;
     } 
     
-    // 2. Acceso del Cliente
+    // Acceso del Cliente
     if (correo === "cliente@mail.com" && password === "123") {
         window.location.href = 'cliente.html';
         return;
     } 
     
-    // 3. Acceso Dinámico de los ENCARGADOS (Conectado con el panel Admin)
-    // Extraemos la base de datos de los encargados. Si no existe, usamos uno por defecto.
+    // Acceso Dinámico de los ENCARGADOS
     let baseEncargados = JSON.parse(localStorage.getItem('cybercate_encargados')) || [
         { correo: 'encargado@mail.com', pass: '123' }
     ];
 
-    // Buscamos si existe alguien con ese correo y esa contraseña exacta
     const encargadoValido = baseEncargados.find(c => c.correo === correo && c.pass === password);
 
     if (encargadoValido) {
