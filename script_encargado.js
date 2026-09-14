@@ -19,7 +19,8 @@ let estadoGatos = [
     { id: 12, nombre: 'Nieve', tipo: 'Angora Blanco', llego: 'Sí', horario: '09:00 - 13:00', estado: 'Disponible', asignacion: 'Ninguna' }
 ];
 
-let estadoPCs = [
+// Cargar desde LocalStorage para estar sincronizado con el Administrador
+let estadoPCs = JSON.parse(localStorage.getItem('cybercate_pcs')) || [
     { id: 'PC 01', estado: 'Disponible' },
     { id: 'PC 02', estado: 'Disponible' },
     { id: 'PC 03', estado: 'Disponible' },
@@ -33,6 +34,24 @@ let estadoPCs = [
     { id: 'PC 11', estado: 'Disponible' },
     { id: 'PC 12', estado: 'Disponible' }
 ];
+
+// Función para guardar los cambios en uso (Ocupar/Desocupar)
+function sincronizarPCsEncargado() {
+    localStorage.setItem('cybercate_pcs', JSON.stringify(estadoPCs));
+}
+
+// Cargar precios dinámicos desde el Administrador (si no existen, usa valores por defecto)
+function obtenerPreciosActuales() {
+    return JSON.parse(localStorage.getItem('cybercate_precios')) || {
+        horaBase: 2500,
+        horaExtra: 1000,
+        gatoBase: 0,
+        gatoExtra: 1500,
+        bebida: 1200,
+        snack: 800
+    };
+}
+const precios = obtenerPreciosActuales();
 
 let intervaloTimerPCs = null; 
 
@@ -109,7 +128,7 @@ function irConfiguraciones() { alert("Configuraciones del encargado..."); }
 // ==========================================================================
 // 3. AGREGAR CLIENTE NUEVO (Y SU CÁLCULO DE TARIFA CON TAGS)
 // ==========================================================================
-const TARIFA_POR_HORA = 2500;
+const TARIFA_POR_HORA = precios.horaBase;
 let serviciosSeleccionadosCli = [];
 
 function cargarOpcionesGatos() {
@@ -213,6 +232,7 @@ function guardarClienteTemporal(evento) {
     
     cargarOpcionesGatos(); 
     cargarOpcionesPCs(); 
+    sincronizarPCsEncargado();
 }
 
 
@@ -318,6 +338,9 @@ function guardarHorario() {
 // ==========================================================================
 
 function actualizarVistaPCs() {
+    // NUEVA LÍNEA: Actualiza la lista por si el Admin hizo cambios
+    estadoPCs = JSON.parse(localStorage.getItem('cybercate_pcs')) || estadoPCs;
+
     const contenedor = document.getElementById('contenedor-pcs');
     if(!contenedor) return;
     contenedor.innerHTML = '';
@@ -442,6 +465,7 @@ if(gato && gato !== 'Sin acompañante'){
     actualizarTablaGatos();
     cargarOpcionesGatos(); 
     cargarOpcionesPCs(); 
+    sincronizarPCsEncargado();
 }
 
 
@@ -449,7 +473,7 @@ if(gato && gato !== 'Sin acompañante'){
 // 7. MODIFICAR SESIÓN (SERVICIOS ADICIONALES Y GATOS EXTRA)
 // ==========================================================================
 
-const COSTO_GATO_EXTRA = 2000;
+const COSTO_GATO_EXTRA = precios.gatoExtra;
 let serviciosSeleccionados = [];
 let gatosExtraSeleccionados = [];
 
