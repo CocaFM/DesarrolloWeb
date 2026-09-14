@@ -59,16 +59,84 @@
     <!-- 1. Gestión de Equipos -->
     <section id="sec-admin-equipos" class="contenido-panel seccion-funcional oculto">
         <div class="tarjeta-trabajo">
-            <h2>Configuración de Computadores</h2>
-            <p>Aquí implementaremos la lógica para crear, modificar, eliminar y cambiar el estado (Disponible/Mantenimiento) de los equipos.</p>
+            <h2>Registrar Nuevo Equipo</h2>
+            <form id="form-agregar-pc" onsubmit="agregarPC(event)">
+                <label>Nombre/ID del Equipo:</label>
+                <input type="text" id="nuevo-nombre-pc" required placeholder="Ej. PC 13">
+                
+                <label>Estado Inicial:</label>
+                <select id="nuevo-estado-pc" required>
+                    <option value="Disponible">Disponible</option>
+                    <option value="Mantenimiento">Mantenimiento</option>
+                </select>
+
+                <div class="espacio-botones">
+                    <button type="submit" style="background-color: #2ecc71;">Agregar Equipo</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="tarjeta-trabajo">
+            <h2>Inventario de Equipos</h2>
+            <table class="tabla-datos">
+                <thead>
+                    <tr>
+                        <th>Nombre del Equipo</th>
+                        <th>Estado Actual</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpo-tabla-pcs">
+                    <!-- Las filas se inyectan con JavaScript -->
+                </tbody>
+            </table>
         </div>
     </section>
 
     <!-- 2. Configuración de Precios -->
     <section id="sec-admin-precios" class="contenido-panel seccion-funcional oculto">
         <div class="tarjeta-trabajo">
-            <h2>Catálogo de Tarifas y Servicios</h2>
-            <p>Aquí gestionaremos el valor por hora, precio base por gato, acompañantes extra y costos de los servicios adicionales.</p>
+            <h2>Actualizar Lista de Precios (CLP)</h2>
+            <p style="margin-bottom: 20px; color: #555;">Modifica los valores a continuación. Los cambios se aplicarán automáticamente en la caja del encargado.</p>
+        
+            <form id="form-precios" onsubmit="guardarPrecios(event)">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                
+                    <div>
+                        <label>Precio Base por Hora:</label>
+                        <input type="number" id="precio-hora-base" required min="0" style="width: 100%; padding: 8px; margin-top: 5px;">
+                    </div>
+                
+                    <div>
+                        <label>Valor Hora Extra (o fracción):</label>
+                        <input type="number" id="precio-hora-extra" required min="0" style="width: 100%; padding: 8px; margin-top: 5px;">
+                    </div>
+                
+                    <div>
+                        <label>Precio Base por Gato:</label>
+                        <input type="number" id="precio-gato-base" required min="0" style="width: 100%; padding: 8px; margin-top: 5px;">
+                    </div>
+                    
+                    <div>
+                        <label>Precio Acompañante Extra (Gato extra):</label>
+                        <input type="number" id="precio-gato-extra" required min="0" style="width: 100%; padding: 8px; margin-top: 5px;">
+                    </div>
+
+                    <div>
+                        <label>Servicio Adicional: Bebidas:</label>
+                        <input type="number" id="precio-bebida" required min="0" style="width: 100%; padding: 8px; margin-top: 5px;">
+                    </div>
+
+                    <div>
+                        <label>Servicio Adicional: Snacks:</label>
+                        <input type="number" id="precio-snack" required min="0" style="width: 100%; padding: 8px; margin-top: 5px;">
+                    </div>
+                </div>
+
+                <div class="espacio-botones">
+                    <button type="submit" style="background-color: #2ecc71; width: 100%; padding: 10px; font-size: 16px;">Guardar Nuevos Precios</button>
+                </div>
+            </form>
         </div>
     </section>
 
