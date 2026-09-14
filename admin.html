@@ -95,45 +95,45 @@
 
     <!-- 2. Configuración de Precios -->
     <section id="sec-admin-precios" class="contenido-panel seccion-funcional oculto">
-        <div class="tarjeta-trabajo">
+        <div class="tarjeta-trabajo" style="color: white;">
             <h2>Actualizar Lista de Precios (CLP)</h2>
-            <p style="margin-bottom: 20px; color: #555;">Modifica los valores a continuación. Los cambios se aplicarán automáticamente en la caja del encargado.</p>
+            <p style="margin-bottom: 20px; color: #ddd;">Modifica los valores a continuación. Los cambios se aplicarán automáticamente en la caja del encargado.</p>
         
             <form id="form-precios" onsubmit="guardarPrecios(event)">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
                 
                     <div>
-                        <label>Precio Base por Hora:</label>
+                        <label style="color: white;">Precio base por hora:</label>
                         <input type="number" id="precio-hora-base" required min="0" style="width: 100%; padding: 8px; margin-top: 5px;">
                     </div>
                 
                     <div>
-                        <label>Valor Hora Extra (o fracción):</label>
+                        <label style="color: white;">Valor extra por hora:</label>
                         <input type="number" id="precio-hora-extra" required min="0" style="width: 100%; padding: 8px; margin-top: 5px;">
                     </div>
                 
                     <div>
-                        <label>Precio Base por Gato:</label>
+                        <label style="color: white;">Precio base de acompañante:</label>
                         <input type="number" id="precio-gato-base" required min="0" style="width: 100%; padding: 8px; margin-top: 5px;">
                     </div>
                     
                     <div>
-                        <label>Precio Acompañante Extra (Gato extra):</label>
+                        <label style="color: white;">Precio de acompañante extra:</label>
                         <input type="number" id="precio-gato-extra" required min="0" style="width: 100%; padding: 8px; margin-top: 5px;">
                     </div>
 
                     <div>
-                        <label>Servicio Adicional: Bebidas:</label>
+                        <label style="color: white;">Servicios adicionales: Bebida:</label>
                         <input type="number" id="precio-bebida" required min="0" style="width: 100%; padding: 8px; margin-top: 5px;">
                     </div>
 
                     <div>
-                        <label>Servicio Adicional: Snacks:</label>
+                        <label style="color: white;">Servicios adicionales: Snack:</label>
                         <input type="number" id="precio-snack" required min="0" style="width: 100%; padding: 8px; margin-top: 5px;">
                     </div>
 
                     <div>
-                        <label>Servicio Adicional: Impresion:</label>
+                        <label style="color: white;">Servicio de impresión:</label>
                         <input type="number" id="precio-imprimir" required min="0" style="width: 100%; padding: 8px; margin-top: 5px;">
                     </div>
                 </div>
@@ -147,20 +147,127 @@
 
     <!-- 3. Gestión de Cuentas -->
     <section id="sec-admin-cuentas" class="contenido-panel seccion-funcional oculto">
+        
         <div class="tarjeta-trabajo">
-            <h2>Cuentas de Encargados</h2>
-            <p>Aquí podrás gestionar los accesos y credenciales del personal del local.</p>
+            <h2>Crear Nueva Cuenta de Encargado</h2>
+            <form id="form-crear-cuenta" onsubmit="agregarCuenta(event)">
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div>
+                        <label style="color: white;">Nombre Completo:</label>
+                        <input type="text" id="nuevo-nombre-cuenta" required placeholder="Ej. Juan Pérez" style="width: 100%; padding: 8px; margin-top: 5px;">
+                    </div>
+                    <div>
+                        <label style="color: white;">Correo Electrónico:</label>
+                        <input type="email" id="nuevo-correo-cuenta" required placeholder="ejemplo@mail.com" style="width: 100%; padding: 8px; margin-top: 5px;">
+                    </div>
+                    <div>
+                        <label style="color: white;">Contraseña Asignada:</label>
+                        <input type="text" id="nueva-pass-cuenta" required placeholder="Clave de acceso" style="width: 100%; padding: 8px; margin-top: 5px;">
+                    </div>
+                </div>
+                <div class="espacio-botones">
+                    <button type="submit" style="background-color: #2ecc71;">Registrar Cuenta</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="tarjeta-trabajo">
+            <h2>Cuentas de Encargados Registradas</h2>
+            <table class="tabla-datos" style="table-layout: fixed;">
+                <thead>
+                    <tr>
+                        <th style="width: 25%;">Nombre</th>
+                        <th style="width: 30%;">Correo Electrónico</th>
+                        <th style="width: 45%;">Acciones de Gestión</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpo-cuentas">
+                    <!-- Las filas se inyectan con JavaScript -->
+                </tbody>
+            </table>
         </div>
     </section>
 
-    <!-- 4. Gestión de Acompañantes -->
+<!-- MODAL DE EDICIÓN DE CUENTA -->
+    <div id="modal-editar-cuenta" class="modal-superpuesto oculto">
+        <div class="modal-contenido">
+            <h3 style="margin-top: 0;">Modificar Cuenta de Encargado</h3>
+            <input type="hidden" id="modal-cuenta-id">
+            
+            <label style="text-align: left; margin-top: 15px;">Nombre Completo:</label>
+            <input type="text" id="modal-cuenta-nombre" style="width: 100%; padding: 8px; margin-top: 5px;">
+            
+            <label style="text-align: left; margin-top: 15px;">Correo Electrónico:</label>
+            <input type="email" id="modal-cuenta-correo" style="width: 100%; padding: 8px; margin-top: 5px;">
+            
+            <label style="text-align: left; margin-top: 15px;">Nueva Contraseña:</label>
+            <input type="text" id="modal-cuenta-pass" style="width: 100%; padding: 8px; margin-top: 5px;">
+            
+            <div style="display: flex; gap: 10px; margin-top: 25px;">
+                <button onclick="guardarEdicionCuenta()" style="background-color: #2ecc71; margin: 0;">Guardar Cambios</button>
+                <button onclick="cerrarModalCuenta()" class="btn-secundario" style="margin: 0;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+
+<!-- 4. Gestión de Acompañantes -->
     <section id="sec-admin-gatos" class="contenido-panel seccion-funcional oculto">
         <div class="tarjeta-trabajo">
+            <h2>Registrar Nuevo Acompañante</h2>
+            <form id="form-crear-gato" onsubmit="agregarGato(event)">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div>
+                        <label style="color: white;">Nombre del Acompañante:</label>
+                        <input type="text" id="nuevo-nombre-gato" required placeholder="Ej. Pelusa" style="width: 100%; padding: 8px; margin-top: 5px;">
+                    </div>
+                    <div>
+                        <label style="color: white;">Raza / Tipo:</label>
+                        <input type="text" id="nuevo-tipo-gato" required placeholder="Ej. Angora" style="width: 100%; padding: 8px; margin-top: 5px;">
+                    </div>
+                </div>
+                <div class="espacio-botones">
+                    <button type="submit" style="background-color: #2ecc71;">Registrar Acompañante</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="tarjeta-trabajo">
             <h2>Base de Datos de Acompañantes</h2>
-            <p>Aquí registraremos nuevos gatos, los eliminaremos o modificaremos sus datos base (nombre, raza).</p>
+            <table class="tabla-datos" style="table-layout: fixed;">
+                <thead>
+                    <tr>
+                        <th style="width: 30%;">Nombre</th>
+                        <th style="width: 40%;">Raza / Tipo</th>
+                        <th style="width: 30%;">Acciones de Gestión</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpo-gatos-admin">
+                    <!-- Las filas se inyectan con JavaScript -->
+                </tbody>
+            </table>
         </div>
     </section>
 
+<!-- MODAL DE EDICIÓN DE GATO -->
+    <div id="modal-editar-gato" class="modal-superpuesto oculto">
+        <div class="modal-contenido">
+            <h3 style="margin-top: 0;">Modificar Acompañante</h3>
+            <input type="hidden" id="modal-gato-id-admin">
+            
+            <label style="text-align: left; margin-top: 15px;">Nombre del Acompañante:</label>
+            <input type="text" id="modal-gato-nombre-admin" style="width: 100%; padding: 8px; margin-top: 5px;">
+            
+            <label style="text-align: left; margin-top: 15px;">Raza / Tipo:</label>
+            <input type="text" id="modal-gato-tipo-admin" style="width: 100%; padding: 8px; margin-top: 5px;">
+            
+            <div style="display: flex; gap: 10px; margin-top: 25px;">
+                <button onclick="guardarEdicionGato()" style="background-color: #2ecc71; margin: 0;">Guardar Cambios</button>
+                <button onclick="cerrarModalGato()" class="btn-secundario" style="margin: 0;">Cancelar</button>
+            </div>
+        </div>
+    </div>
     <script src="script_admin.js"></script>
+    
 </body>
 </html>

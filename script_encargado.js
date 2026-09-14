@@ -3,8 +3,8 @@
 // ==========================================================================
 let registroClientes = [];
 
-// Base de datos de los gatos
-let estadoGatos = [
+// Cargar desde LocalStorage para estar sincronizado con el Administrador
+let estadoGatos = JSON.parse(localStorage.getItem('cybercate_gatos')) || [
     { id: 1, nombre: 'Estrella', tipo: 'Siamesa', llego: 'Sí', horario: '09:00 - 15:00', estado: 'Disponible', asignacion: 'Ninguna' },
     { id: 2, nombre: 'Simba', tipo: 'Naranja/Atigrado', llego: 'Sí', horario: '10:00 - 16:00', estado: 'Disponible', asignacion: 'Ninguna' },
     { id: 3, nombre: 'Oreo', tipo: 'Blanco y Negro', llego: 'Sí', horario: '14:00 - 20:00', estado: 'Disponible', asignacion: 'Ninguna' },
@@ -18,6 +18,11 @@ let estadoGatos = [
     { id: 11, nombre: 'Cleo', tipo: 'Bengala', llego: 'Sí', horario: '17:00 - 23:00', estado: 'Disponible', asignacion: 'Ninguna' },
     { id: 12, nombre: 'Nieve', tipo: 'Angora Blanco', llego: 'Sí', horario: '09:00 - 13:00', estado: 'Disponible', asignacion: 'Ninguna' }
 ];
+
+// Nueva función para guardar los cambios de los gatos
+function sincronizarGatosEncargado() {
+    localStorage.setItem('cybercate_gatos', JSON.stringify(estadoGatos));
+}
 
 // Cargar desde LocalStorage para estar sincronizado con el Administrador
 let estadoPCs = JSON.parse(localStorage.getItem('cybercate_pcs')) || [
@@ -244,6 +249,7 @@ function guardarClienteTemporal(evento) {
     cargarOpcionesGatos(); 
     cargarOpcionesPCs(); 
     sincronizarPCsEncargado();
+    sincronizarGatosEncargado();
 }
 
 
@@ -303,6 +309,7 @@ function alternarLlegada(idGato) {
             gato.llego = 'Sí';
             gato.estado = 'Disponible';
         }
+        sincronizarGatosEncargado();
         actualizarTablaGatos();
         cargarOpcionesGatos(); 
     }
@@ -338,6 +345,7 @@ function guardarHorario() {
     let gatoIndex = estadoGatos.findIndex(g => g.id === id);
     if(gatoIndex !== -1) {
         estadoGatos[gatoIndex].horario = `${entrada} - ${salida}`;
+        sincronizarGatosEncargado();
         actualizarTablaGatos();
     }
     cerrarModalHorario();
@@ -477,6 +485,7 @@ if(gato && gato !== 'Sin acompañante'){
     cargarOpcionesGatos(); 
     cargarOpcionesPCs(); 
     sincronizarPCsEncargado();
+    sincronizarGatosEncargado();
 }
 
 
@@ -768,6 +777,7 @@ function guardarExtra(evento) {
     alert(`Se han aplicado las modificaciones al ${pcSelect}.`);
     
     document.getElementById('form-extras').reset();
+    sincronizarGatosEncargado();
     cargarOpcionesPCsActivos();
     actualizarVistaPCs();
     actualizarTablaGatos();
@@ -926,6 +936,8 @@ function activarReserva(id) {
 
             agendaReservas[reservaIndex].estado = 'Completada';
             actualizarTablaReservas();
+            sincronizarPCsEncargado(); // <--- ASEGÚRATE DE PONER ESTA TAMBIÉN
+            sincronizarGatosEncargado(); // <--- LÍNEA NUEVA
             alert(`Sesión iniciada con éxito. El ${pcSeleccionado} y ${nombreAcompanante} han sido asignados.`);
         }
     }

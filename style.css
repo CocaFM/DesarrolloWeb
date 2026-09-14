@@ -494,9 +494,10 @@ body.dashboard-layout .tarjeta-trabajo {
     gap: 8px;
     transition: background-color 0.2s;
 }
-/* ========================================== /
-/        BOTONES DEL MENÚ ADMINISTRADOR      /
-/ ========================================== */
+
+/* ========================================== */
+/*        BOTONES DEL MENÚ ADMINISTRADOR      */
+/* ========================================== */
 .btn-admin-equipos { background-image: url('imagenes/admin-equipos.png'); }
 .btn-admin-precios { background-image: url('imagenes/admin-precios.png'); }
 .btn-admin-cuentas { background-image: url('imagenes/admin-cuentas.png'); }
