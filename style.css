@@ -22,15 +22,17 @@ body {
 }
 
 body.bg-admin {
-    background-color: #5c5365; /* Morado grisáceo */
+    background-color: #5c5365; 
 }
 
 body.bg-encargado {
-    background-color: #722f37; /* Rojo vino */
+    background-color: #722f37; 
 }
-
+body.bg-cliente {
+    background-color: rgb(76, 80, 37);
+}
 /* ========================================== */
-/*          PÁGINA DE INICIO (LOGIN)          */
+/*          PÁGINA DE INICIO         */
 /* ========================================== */
 .contenedor-principal {
     width: 100%;
