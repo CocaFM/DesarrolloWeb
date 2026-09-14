@@ -48,7 +48,8 @@ function obtenerPreciosActuales() {
         gatoBase: 0,
         gatoExtra: 1500,
         bebida: 1200,
-        snack: 800
+        snack: 800,
+        imprimir: 500
     };
 }
 const precios = obtenerPreciosActuales();
@@ -168,7 +169,13 @@ function cargarOpcionesPCs() {
 function actualizarMontoCli() {
     const horas = parseInt(document.getElementById('horas-cli').value) || 0;
     let total = horas * TARIFA_POR_HORA;
-    
+
+    // NUEVO: Sumar el precio base del gato si hay uno seleccionado
+    const gatoElegido = document.getElementById('gato-cli').value;
+    if (gatoElegido !== "") {
+        total += precios.gatoBase;
+    }
+
     // Sumar servicios adicionales seleccionados (Tags)
     serviciosSeleccionadosCli.forEach(s => total += s.precio);
     
@@ -178,6 +185,10 @@ function actualizarMontoCli() {
 
 const inputHorasCli = document.getElementById('horas-cli');
 if (inputHorasCli) inputHorasCli.addEventListener('input', actualizarMontoCli);
+
+// NUEVA LÍNEA: Recalcular el total al seleccionar un gato
+const selectGatoCli = document.getElementById('gato-cli');
+if (selectGatoCli) selectGatoCli.addEventListener('change', actualizarMontoCli);
 
 function guardarClienteTemporal(evento) {
     evento.preventDefault();
@@ -534,20 +545,55 @@ function actualizarSumaTotalExtra() {
     if(inputMonto) inputMonto.value = total;
 }
 
+function actualizarTextosPreciosUI() {
+    // 1. Actualizar las opciones en "Agregar Cliente Nuevo"
+    const opcionesSrvCli = document.getElementById('select-add-servicio-cli');
+    if (opcionesSrvCli) {
+        for (let i = 0; i < opcionesSrvCli.options.length; i++) {
+            let opt = opcionesSrvCli.options[i];
+            if (opt.value.includes("Hora Extra")) opt.text = `Hora Extra ($${precios.horaExtra})`;
+            if (opt.value.includes("Bebida")) opt.text = `Bebida ($${precios.bebida})`;
+            if (opt.value.includes("Snack")) opt.text = `Snack ($${precios.snack})`;
+            if (opt.value.includes("Impresión")) opt.text = `Impresión ($${precios.imprimir})`;
+        }
+    }
+
+    // 2. Actualizar las opciones en "Modificar Sesión (Extras)"
+    const opcionesSrvExtra = document.getElementById('select-add-servicio');
+    if (opcionesSrvExtra) {
+        for (let i = 0; i < opcionesSrvExtra.options.length; i++) {
+            let opt = opcionesSrvExtra.options[i];
+            if (opt.value.includes("Hora Extra")) opt.text = `Hora Extra ($${precios.horaExtra})`;
+            if (opt.value.includes("Bebida")) opt.text = `Bebida ($${precios.bebida})`;
+            if (opt.value.includes("Snack")) opt.text = `Snack ($${precios.snack})`;
+            if (opt.value.includes("Impresión")) opt.text = `Impresión ($${precios.imprimir})`;
+        }
+    }
+}
+
 // INICIALIZACIÓN DE LOS 3 MENÚS DE TAGS (NATIVOS)
 document.addEventListener('DOMContentLoaded', () => {
-    
+    actualizarTextosPreciosUI();
     // A. Menú de Servicios (Modificar Sesión)
     const selectSrv = document.getElementById('select-add-servicio');
     if (selectSrv) {
         selectSrv.addEventListener('change', (e) => {
             if (e.target.value === "") return;
+            const nombreServicio = e.target.value;
+            let precioAsignado = 0;
+            
+            // Asignar precio dinámico según el nombre
+            if (nombreServicio.includes("Hora Extra")) precioAsignado = precios.horaExtra;
+            else if (nombreServicio.includes("Bebida")) precioAsignado = precios.bebida;
+            else if (nombreServicio.includes("Snack")) precioAsignado = precios.snack;
+            else if (nombreServicio.includes("Impresión")) precioAsignado = precios.imprimir;
+
             const selectedOption = e.target.options[e.target.selectedIndex];
             serviciosSeleccionados.push({
                 id: Date.now() + Math.random(), 
-                nombre: selectedOption.value,
-                precio: parseInt(selectedOption.getAttribute('data-precio')),
-                horas: parseInt(selectedOption.getAttribute('data-horas'))
+                nombre: nombreServicio,
+                precio: precioAsignado, // Usa el JSON en lugar del HTML
+                horas: parseInt(selectedOption.getAttribute('data-horas')) || 0
             });
             actualizarTagsServicios();
             e.target.value = ""; 
@@ -581,11 +627,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (selectSrvCli) {
         selectSrvCli.addEventListener('change', (e) => {
             if (e.target.value === "") return;
-            const selectedOption = e.target.options[e.target.selectedIndex];
+            const nombreServicio = e.target.value;
+            let precioAsignado = 0;
+
+            if (nombreServicio.includes("Hora Extra")) precioAsignado = precios.horaExtra;
+            else if (nombreServicio.includes("Bebida")) precioAsignado = precios.bebida;
+            else if (nombreServicio.includes("Snack")) precioAsignado = precios.snack;
+            else if (nombreServicio.includes("Impresión")) precioAsignado = precios.imprimir;
+
             serviciosSeleccionadosCli.push({
                 id: Date.now() + Math.random(), 
-                nombre: selectedOption.value,
-                precio: parseInt(selectedOption.getAttribute('data-precio'))
+                nombre: nombreServicio,
+                precio: precioAsignado // Usa el JSON en lugar del HTML
             });
             actualizarTagsServiciosCli();
             e.target.value = ""; 
@@ -841,12 +894,17 @@ function activarReserva(id) {
             const horaRegistroStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
             let nombreAcompanante = 'Sin acompañante';
+            let montoFinal = reserva.monto; // Creamos una variable para el cobro final
+
             if (gatoSeleccionado !== "") {
                 const gatoIndex = estadoGatos.findIndex(g => g.nombre === gatoSeleccionado);
                 if (gatoIndex !== -1) {
                     estadoGatos[gatoIndex].estado = 'Ocupado';
                     estadoGatos[gatoIndex].asignacion = `Cliente: ${reserva.nombre} | ${pcSeleccionado}`;
                     nombreAcompanante = gatoSeleccionado;
+                    
+                    // NUEVO: Sumamos el precio base del gato a la reserva
+                    montoFinal += precios.gatoBase; 
                 }
             }
 
@@ -862,7 +920,7 @@ function activarReserva(id) {
                 pc: pcSeleccionado,
                 gato: nombreAcompanante,
                 horas: reserva.horas,
-                monto: reserva.monto,
+                monto: montoFinal, // Reemplazamos reserva.monto por el monto recalculado
                 activo: true
             });
 
