@@ -3,22 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - [Nombre Genérico]</title>
+    <title>Admin - CyberCaté</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="dashboard-layout">
+<body class="bg-admin layout-panel">
 
-    <!-- Cabecera (Lengüeta) -->
+    <!-- Cabecera Superior -->
     <header class="cabecera-dashboard">
         <div class="cabecera-izquierda">
-            <h1 class="cabecera-titulo">Admin</h1>
+            <button id="btn-volver" class="btn-atras oculto" onclick="volverAlMenu()" title="Volver al menú principal">
+                <!-- SVG de Casa Abstracta -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icono-casa" style="width: 24px; height: 24px; margin-top: 4px;">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+            </button>
+            <h1 class="cabecera-titulo">Admin<span id="texto-ruta" class="ruta-pequena"></span></h1>
         </div>
         
         <div class="cabecera-derecha perfil-contenedor">
-            <!-- Botón redondo -->
-            <button class="btn-perfil" onclick="toggleMenuPerfil()">A</button>
-            
-            <!-- Menú desplegable -->
+            <button class="btn-perfil" onclick="toggleMenuPerfil()" title="Perfil del Administrador">A</button>
             <div id="menu-perfil" class="menu-desplegable">
                 <button onclick="irConfiguraciones()">Configuraciones</button>
                 <button onclick="cerrarSesion()">Cerrar sesión</button>
@@ -26,13 +30,64 @@
         </div>
     </header>
 
-    <!-- Contenido Principal -->
-    <main class="contenido-dashboard">
-        <h2>Panel de Control</h2>
-        <p>Esta es tu página base en blanco. Aquí comenzarás a construir las tablas y herramientas del administrador.</p>
+    <!-- MENÚ PRINCIPAL -->
+    <main id="menu-principal-admin" class="contenido-panel activo">
+        <div class="grilla-botones">
+            <div class="item-grilla">
+                <button class="btn-admin-equipos" onclick="abrirSeccion('sec-admin-equipos', 'Gestión de Equipos (PCs)')"></button>
+                <p>Gestión de Equipos (PCs)</p>
+            </div>
+            <div class="item-grilla">
+                <button class="btn-admin-precios" onclick="abrirSeccion('sec-admin-precios', 'Configuración de Precios')"></button>
+                <p>Configuración de Precios</p>
+            </div>
+            <div class="item-grilla">
+                <button class="btn-admin-cuentas" onclick="abrirSeccion('sec-admin-cuentas', 'Gestión de Cuentas')"></button>
+                <p>Gestión de Cuentas (Encargados)</p>
+            </div>
+            <div class="item-grilla">
+                <button class="btn-admin-gatos" onclick="abrirSeccion('sec-admin-gatos', 'Gestión de Acompañantes')"></button>
+                <p>Gestión de Acompañantes</p>
+            </div>
+        </div>
     </main>
 
-    <!-- Enlace exclusivo a la lógica del administrador -->
+    <!-- ========================================================== -->
+    <!--            SUBPÁGINAS INDIVIDUALES (ADMIN)                 -->
+    <!-- ========================================================== -->
+
+    <!-- 1. Gestión de Equipos -->
+    <section id="sec-admin-equipos" class="contenido-panel seccion-funcional oculto">
+        <div class="tarjeta-trabajo">
+            <h2>Configuración de Computadores</h2>
+            <p>Aquí implementaremos la lógica para crear, modificar, eliminar y cambiar el estado (Disponible/Mantenimiento) de los equipos.</p>
+        </div>
+    </section>
+
+    <!-- 2. Configuración de Precios -->
+    <section id="sec-admin-precios" class="contenido-panel seccion-funcional oculto">
+        <div class="tarjeta-trabajo">
+            <h2>Catálogo de Tarifas y Servicios</h2>
+            <p>Aquí gestionaremos el valor por hora, precio base por gato, acompañantes extra y costos de los servicios adicionales.</p>
+        </div>
+    </section>
+
+    <!-- 3. Gestión de Cuentas -->
+    <section id="sec-admin-cuentas" class="contenido-panel seccion-funcional oculto">
+        <div class="tarjeta-trabajo">
+            <h2>Cuentas de Encargados</h2>
+            <p>Aquí podrás gestionar los accesos y credenciales del personal del local.</p>
+        </div>
+    </section>
+
+    <!-- 4. Gestión de Acompañantes -->
+    <section id="sec-admin-gatos" class="contenido-panel seccion-funcional oculto">
+        <div class="tarjeta-trabajo">
+            <h2>Base de Datos de Acompañantes</h2>
+            <p>Aquí registraremos nuevos gatos, los eliminaremos o modificaremos sus datos base (nombre, raza).</p>
+        </div>
+    </section>
+
     <script src="script_admin.js"></script>
 </body>
 </html>
