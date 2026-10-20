@@ -1,0 +1,7 @@
+[
+  { "id": 901, "fecha": "15/10/2026, 22:00", "correo": "encargado@mail.com", "clientes": 14, "total": 48500 },
+  { "id": 902, "fecha": "16/10/2026, 22:05", "correo": "camila@mail.com", "clientes": 18, "total": 62000 },
+  { "id": 903, "fecha": "17/10/2026, 22:10", "correo": "matias@mail.com", "clientes": 22, "total": 81500 },
+  { "id": 904, "fecha": "18/10/2026, 21:55", "correo": "encargado@mail.com", "clientes": 19, "total": 69000 },
+  { "id": 905, "fecha": "19/10/2026, 22:00", "correo": "valentina@mail.com", "clientes": 16, "total": 54200 }
+]
