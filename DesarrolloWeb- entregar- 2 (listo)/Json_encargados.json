@@ -1,7 +1,0 @@
-[
-  { "id": "ENC-01", "nombre": "Encargado Principal", "correo": "encargado@mail.com", "pass": "123", "turno": "Mañana" },
-  { "id": "ENC-02", "nombre": "Camila Soto", "correo": "camila@mail.com", "pass": "123", "turno": "Tarde" },
-  { "id": "ENC-03", "nombre": "Matías Rojas", "correo": "matias@mail.com", "pass": "123", "turno": "Noche" },
-  { "id": "ENC-04", "nombre": "Valentina Díaz", "correo": "valentina@mail.com", "pass": "123", "turno": "Mañana" },
-  { "id": "ENC-05", "nombre": "Diego Muñoz", "correo": "diego@mail.com", "pass": "123", "turno": "Fin de Semana" }
-]

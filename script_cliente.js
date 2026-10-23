@@ -1,113 +1,103 @@
-// ==========================================================================
-// PANEL DE CLIENTE
+/* ========================================================================== */
+/* COMPONENTE ALPINE: clienteApp (Lógica de Reservas del Cliente)             */
+/* ========================================================================== */
+document.addEventListener('alpine:init', () => {
+    Alpine.data('clienteApp', () => ({
+        
+        // ==================================================================
+        // 1. VARIABLES DE INTERFAZ Y DATOS DEL PERFIL DEL CLIENTE
+        // ==================================================================
+        vista: 'menu',
+        mostrarAyuda: false,
+        tituloRuta: '',
+        menuPerfil: false,
+        modalPerfil: false,
+        inicialPerfil: 'C',
+        datosPerfil: { id: '', nombre: '', correo: '', rol: 'Cliente Registrado' },
+        cargando: true,
+        
+        // ==================================================================
+        // 2. ARREGLOS DE CATÁLOGO Y MODELO DE RESERVA
+        // ==================================================================
+        listaGatos: [],
+        reservasEnMemoria: [],
+        precios: { horaBase: 2500, gatoBase: 0 },
+        reserva: { nombre: '', fecha: '', horas: 1, gato: '' },
 
-const TARIFA_POR_HORA = 2500;
+        // ==================================================================
+        // 3. INICIALIZACIÓN Y CARGA DE JSON (GATOS, PRECIOS Y CLIENTES)
+        // ==================================================================
+        async init() {
+            const params = new URLSearchParams(window.location.search);
+            const nombreURL = params.get('nombre') || params.get('correo') || 'Cliente';
+            const correoURL = params.get('correo') || 'cliente@mail.com';
+            
+            this.inicialPerfil = nombreURL.trim().charAt(0).toUpperCase();
+            this.datosPerfil.correo = correoURL;
+            this.datosPerfil.nombre = nombreURL;
+            this.datosPerfil.id = 'CLI-' + Math.floor(Math.random() * 10000);
 
-function abrirSeccion(idSeccion, nombreSeccion) {
-    document.getElementById('menu-principal-cliente').classList.remove('activo');
-    document.getElementById('menu-principal-cliente').classList.add('oculto');
+            try {
+                const [resGatos, resPrecios, resCli] = await Promise.all([
+                    fetch('Json_acompañantes.json'),
+                    fetch('Json_productos_precios.json'),
+                    fetch('Json_clientes.json')
+                ]);
 
-    const secciones = document.querySelectorAll('.seccion-funcional');
-    secciones.forEach(sec => {
-        sec.classList.remove('activo');
-        sec.classList.add('oculto');
-    });
+                if (resGatos.ok) this.listaGatos = await resGatos.json();
+                if (resPrecios.ok) {
+                    const dataPrecios = await resPrecios.json();
+                    this.precios = dataPrecios.tarifas || dataPrecios;
+                }
+                if (resCli.ok) {
+                    const clientes = await resCli.json();
+                    const cli = clientes.find(c => c.correo.toLowerCase() === correoURL.toLowerCase());
+                    if (cli && cli.nombre) {
+                        this.inicialPerfil = cli.nombre.trim().charAt(0).toUpperCase();
+                        this.datosPerfil.nombre = cli.nombre;
+                        this.datosPerfil.id = cli.id || this.datosPerfil.id;
+                    }
+                }
+            } catch (e) {
+                console.error("Error al cargar JSON en Cliente:", e);
+            } finally {
+                this.cargando = false;
+            }
+        },
 
-    const seccionActiva = document.getElementById(idSeccion);
-    if (seccionActiva) {
-        seccionActiva.classList.remove('oculto');
-        seccionActiva.classList.add('activo');
-    }
+        // ==================================================================
+        // 4. PROPIEDADES COMPUTADAS (FILTRO GATOS Y CÁLCULO DE TARIFA)
+        // ==================================================================
+        get gatosDisponibles() { 
+            return this.listaGatos.filter(g => g.estado === 'Disponible'); 
+        },
 
-    document.getElementById('texto-ruta').innerText = ` : ${nombreSeccion}`;
-    document.getElementById('btn-volver').classList.remove('oculto');
-}
+        get montoEstimado() {
+            let total = (parseInt(this.reserva.horas) || 0) * (this.precios.horaBase || 2500);
+            if (this.reserva.gato !== '') total += (this.precios.gatoBase || 0);
+            return total > 0 ? total : '';
+        },
 
-function volverAlMenu() {
-    const secciones = document.querySelectorAll('.seccion-funcional');
-    secciones.forEach(sec => {
-        sec.classList.remove('activo');
-        sec.classList.add('oculto');
-    });
+        // ==================================================================
+        // 5. NAVEGACIÓN Y CONFIRMACIÓN DE RESERVA EN MEMORIA
+        // ==================================================================
+        abrirSeccion(id, nombre) { this.vista = id; this.tituloRuta = ` : ${nombre}`; },
+        volverAlMenu() { this.vista = 'menu'; this.tituloRuta = ''; this.reserva = { nombre: '', fecha: '', horas: 1, gato: '' }; },
+        cerrarSesion() { window.location.href = 'index.html'; },
+        irConfiguraciones() { this.menuPerfil = false; this.modalPerfil = true; },
 
-    document.getElementById('menu-principal-cliente').classList.remove('oculto');
-    document.getElementById('menu-principal-cliente').classList.add('activo');
-    
-    document.getElementById('texto-ruta').innerText = '';
-    document.getElementById('btn-volver').classList.add('oculto');
-    
-    document.getElementById('form-reserva-cliente').reset();
-    calcularTotal();
-}
-
-// MENÚ DE PERFIL
-function toggleMenuPerfil() {
-    const menu = document.getElementById('menu-perfil');
-    if (menu) menu.classList.toggle('activo');
-}
-
-window.onclick = function(evento) {
-    if (!evento.target.matches('.btn-perfil')) {
-        const menu = document.getElementById('menu-perfil');
-        if (menu && menu.classList.contains('activo')) {
-            menu.classList.remove('activo');
+        confirmarReserva() {
+            this.reservasEnMemoria.push({
+                id: Date.now(), 
+                nombre: this.reserva.nombre, 
+                fecha: this.reserva.fecha,
+                horas: this.reserva.horas, 
+                monto: this.montoEstimado, 
+                gato: this.reserva.gato
+            });
+            
+            alert("✅ Reserva agendada en memoria (Nota: Se perderá al recargar la página).");
+            this.volverAlMenu();
         }
-    }
-};
-
-function cerrarSesion() {
-    window.location.href = 'index.html';
-}
-
-// ==========================================================================
-// CÁLCULO
-function calcularTotal() {
-    const inputHoras = document.getElementById('horas-reserva');
-    const horas = parseInt(inputHoras.value) || 0;
-    let total = horas * TARIFA_POR_HORA;
-
-    const extras = document.querySelectorAll('.extra-checkbox');
-    extras.forEach(checkbox => {
-        if (checkbox.checked) {
-            total += parseInt(checkbox.getAttribute('data-precio'));
-        }
-    });
-
-    const inputMontoReserva = document.getElementById('monto-reserva');
-    if (inputMontoReserva) {
-        inputMontoReserva.value = total > 0 ? total : '';
-    }
-}
-
-document.getElementById('horas-reserva').addEventListener('input', calcularTotal);
-const checkboxesExtra = document.querySelectorAll('.extra-checkbox');
-checkboxesExtra.forEach(checkbox => {
-    checkbox.addEventListener('change', calcularTotal);
+    }));
 });
-
-
-// ==========================================================================
-// CONFIRMAR RESERVA
-function confirmarReserva(evento) {
-    evento.preventDefault();
-    
-    const fecha = document.getElementById('fecha-reserva').value;
-    const horas = document.getElementById('horas-reserva').value;
-    const monto = document.getElementById('monto-reserva').value;
-
-    
-    let serviciosSeleccionados = [];
-    const extras = document.querySelectorAll('.extra-checkbox:checked');
-    extras.forEach(checkbox => {
-        serviciosSeleccionados.push(checkbox.value);
-    });
-
-    const fechaFormat = new Date(fecha).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
-    
-    
-    const textoExtras = serviciosSeleccionados.length > 0 ? serviciosSeleccionados.join(', ') : 'Ninguno';
-
-    alert(`¡Reserva confirmada con éxito!\n\nFecha: ${fechaFormat}\nTiempo: ${horas} hr(s)\nExtras: ${textoExtras}\n\nTotal a pagar en caja: $${monto}`);
-    
-    volverAlMenu();
-}

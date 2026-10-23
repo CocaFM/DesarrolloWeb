@@ -3,304 +3,308 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Encargado - [Nombre Genérico]</title>
+    <title>Encargado - CyberCaté</title>
     <link rel="stylesheet" href="style.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body class="bg-encargado layout-panel">
+<body class="bg-encargado layout-panel" x-data="encargadoApp()" x-cloak>
 
-    <!-- Cabecera Superior -->
+    <!-- ========================================================== -->
+    <!-- SECCIÓN 1: CABECERA SUPERIOR Y MENÚ DE PERFIL              -->
+    <!-- ========================================================== -->
     <header class="cabecera-dashboard">
         <div class="cabecera-izquierda">
-            <button id="btn-volver" class="btn-atras oculto" onclick="volverAlMenu()" title="Volver al menú principal">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icono-casa" style="width: 24px; height: 24px; margin-top: 4px;">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                </svg>
+            <button x-show="vista !== 'menu'" @click="volverAlMenu()" class="btn-atras" title="Volver al menú principal">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icono-casa" style="width: 24px; height: 24px;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
             </button>
-            <h1 class="cabecera-titulo">Encargado<span id="texto-ruta" class="ruta-pequena"></span></h1>
+            <h1 class="cabecera-titulo">Encargado<span class="ruta-pequena" x-text="tituloRuta"></span></h1>
         </div>
         
-        <div class="cabecera-derecha perfil-contenedor">
-            <button class="btn-perfil" onclick="toggleMenuPerfil()" title="Perfil del Encargado">E</button>
-            <div id="menu-perfil" class="menu-desplegable">
-                <button onclick="irConfiguraciones()">Configuraciones</button>
-                <button onclick="cerrarSesion()">Cerrar sesión</button>
+        <div class="cabecera-derecha perfil-contenedor" @click.outside="menuPerfil = false">
+            <button type="button" class="btn-perfil" @click="menuPerfil = !menuPerfil" x-text="inicialPerfil" title="Perfil de Usuario"></button>
+            <div class="menu-desplegable" x-show="menuPerfil" style="display: none;" x-transition>
+                <button type="button" @click="irConfiguraciones()">Configuraciones</button>
+                <button type="button" @click="cerrarSesion()">Cerrar sesión</button>
             </div>
         </div>
+
+        <!-- Botón de Ayuda Absoluto (Debajo de perfil) -->
+    <div class="contenedor-ayuda-absoluto">
+        <button type="button" @click="mostrarAyuda = !mostrarAyuda" class="btn-ayuda-alpine">
+            <span x-text="mostrarAyuda ? '✖ Ocultar instrucciones' : 'Instrucciones'"></span>
+        </button>
+        <div x-show="mostrarAyuda" class="caja-ayuda-alpine" style="display: none;" x-transition>
+            <strong>Guía de uso:</strong> Todos los registros se cargan dinámicamente desde archivos JSON mediante <code>fetch()</code>. <em>Importante: Los cambios o registros nuevos que agregues se guardan en la memoria de la sesión y se perderán al recargar la página.</em>
+        </div>
+    </div>
+
     </header>
 
-    <!-- MENÚ PRINCIPAL -->
-    <main id="menu-principal-encargado" class="contenido-panel activo">
+    <div style="padding: 15px 35px 0 35px;">
+        <div x-show="cargando" class="estado-alerta estado-cargando">Cargando datos JSON...</div>
+        <div x-show="errorCarga" class="estado-alerta estado-error" x-text="errorCarga"></div>
+    </div>
+
+    <!-- ========================================================== -->
+    <!-- SECCIÓN 2: MENÚ PRINCIPAL DE 7 BOTONES DEL ENCARGADO       -->
+    <!-- ========================================================== -->
+    <main class="contenido-panel" x-show="vista === 'menu'">
         <div class="grilla-botones">
-            <div class="item-grilla">
-                <button class="btn-estados-pc" onclick="abrirSeccion('sec-estados', 'Estados del PC')"></button>
-                <p>Estados del PC</p>
-            </div>
-            <div class="item-grilla">
-                <button class="btn-agregar-cliente" onclick="abrirSeccion('sec-agregar-cliente', 'Agregar Cliente')"></button>
-                <p>Agregar Cliente</p>
-            </div>
-            <div class="item-grilla">
-                <button class="btn-acompanantes" onclick="abrirSeccion('sec-estado-acompanantes', 'Estado de Acompañantes')"></button>
-                <p>Estado de Acompañantes</p>
-            </div>
-            <div class="item-grilla">
-                <button class="btn-historial" onclick="abrirSeccion('sec-historial', 'Historial')"></button>
-                <p>Historial</p>
-            </div>
-            <div class="item-grilla">
-                <button class="btn-agregar-servicio" onclick="abrirSeccion('sec-agregar-servicio', 'Agregar servicios adicionales y modificar acompañante')"></button>
-                <p>Agregar servicios adicionales y modificar acompañante</p>
-            </div>
-            <div class="item-grilla">
-                <button class="btn-consultar-registro" onclick="abrirSeccion('sec-consultar-registro', 'Consultar Registro')"></button>
-                <p>Consultar Registro</p>
-            </div>
-            <div class="item-grilla">
-                <button class="btn-cierre-caja" onclick="abrirSeccion('sec-cierre-caja', 'Cierre de Caja')"></button>
-                <p>Cierre de Caja</p>
-            </div>
+            <div class="item-grilla"><button class="btn-estados-pc" @click="abrirSeccion('sec-estados', 'Estados del PC')"></button><p>Estados del PC</p></div>
+            <div class="item-grilla"><button class="btn-agregar-cliente" @click="abrirSeccion('sec-agregar-cliente', 'Agregar Cliente')"></button><p>Agregar Cliente</p></div>
+            <div class="item-grilla"><button class="btn-acompanantes" @click="abrirSeccion('sec-estado-acompanantes', 'Estado de Acompañantes')"></button><p>Estado de Acompañantes</p></div>
+            <div class="item-grilla"><button class="btn-historial" @click="abrirSeccion('sec-historial', 'Historial')"></button><p>Historial</p></div>
+            <div class="item-grilla"><button class="btn-agregar-servicio" @click="abrirSeccion('sec-agregar-servicio', 'Modificar Sesión')"></button><p>Modificar Sesión</p></div>
+            <div class="item-grilla"><button class="btn-consultar-registro" @click="abrirSeccion('sec-consultar-registro', 'Consultar Registro')"></button><p>Consultar Registro</p></div>
+            <div class="item-grilla"><button class="btn-cierre-caja" @click="abrirSeccion('sec-cierre-caja', 'Cierre de Caja')"></button><p>Cierre de Caja</p></div>
         </div>
     </main>
 
     <!-- ========================================================== -->
-    <!--            SUBPÁGINAS INDIVIDUALES         -->            
-
-    <!-- 1. Estados del PC -->
-    <section id="sec-estados" class="contenido-panel seccion-funcional oculto">
+    <!-- SECCIÓN 3: MÓDULO 1 - MONITOREO DE ESTADOS DEL PC          -->
+    <!-- Muestra tarjetas con el estado en vivo de cada computador. -->
+    <!-- ========================================================== -->
+    <section class="contenido-panel seccion-funcional" x-show="vista === 'sec-estados'" style="display: none;">
         <div class="tarjeta-trabajo">
             <h2>Monitoreo de Equipos</h2>
-            <div style="display: flex; gap: 15px; margin-top: 20px; flex-wrap: wrap;" id="contenedor-pcs">
-                
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px; margin-top: 20px;">
+                <template x-for="pc in estadoPCs" :key="pc.id">
+                    <div :style="`background: ${pc.estado === 'Disponible' ? 'rgba(46, 204, 113, 0.2)' : (pc.estado === 'Ocupado' ? 'rgba(231, 76, 60, 0.2)' : 'rgba(241, 196, 15, 0.2)')}; padding: 15px; border-radius: 8px; font-weight: bold; text-align: center; display: flex; flex-direction: column; min-height: 230px;`">
+                        <span style="font-size: 16px;" x-text="`${pc.estado === 'Disponible' ? '🟢' : (pc.estado === 'Ocupado' ? '🔴' : '🟡')} ${pc.id}: ${pc.estado}`"></span>
+                        
+                        <template x-if="pc.estado === 'Ocupado'">
+                            <div style="background: rgba(255,255,255,0.85); color: #333; font-size: 14px; text-align: left; padding: 10px; border-radius: 8px; margin-top: 10px; width: 100%; box-sizing: border-box; flex-grow: 1;">
+                                <p style="margin: 3px 0;">👤 <b>Cliente:</b> <span x-text="pc.cliente"></span></p>
+                                <p style="margin: 3px 0;">🐈 <b>Acompañante:</b> <span x-text="pc.gato"></span></p>
+                                <p style="margin: 3px 0;">🕒 <b>Inicio:</b> <span x-text="pc.horaInicioStr"></span></p>
+                            </div>
+                        </template>
+                        
+                        <template x-if="pc.estado === 'Ocupado'">
+                            <button type="button" class="btn-secundario" style="margin-top: 10px; padding: 8px 12px; width: 100%;" @click="terminarSesion(pc.id, pc.gato)">Terminar Sesión</button>
+                        </template>
+                    </div>
+                </template>
             </div>
         </div>
     </section>
 
-    <!-- 2. Agregar Cliente -->
-    <section id="sec-agregar-cliente" class="contenido-panel seccion-funcional oculto">
+    <!-- ========================================================== -->
+    <!-- SECCIÓN 4: MÓDULO 2 - AGREGAR CLIENTE PRESENCIAL           -->
+    <!-- Asigna un PC disponible y un gato libre a un nuevo cliente.-->
+    <!-- ========================================================== -->
+    <section class="contenido-panel seccion-funcional" x-show="vista === 'sec-agregar-cliente'" style="display: none;">
         <div class="tarjeta-trabajo">
             <h2>Registrar Nuevo Cliente</h2>
-            <form id="form-cliente" onsubmit="guardarClienteTemporal(event)">
+            <form @submit.prevent="guardarClienteTemporal">
                 <label>Nombre del Cliente:</label>
-                <input type="text" id="nombre-cli" required placeholder="Nombre completo">
+                <input type="text" x-model="nuevoCli.nombre" required placeholder="Nombre completo">
                 
                 <label>PC a utilizar:</label>
-                <select id="pc-cli" style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; border-radius: 5px;" required>
-                    <option value="PC 01">PC 01</option>
-                    <option value="PC 02">PC 02</option>
-                    <option value="PC 03">PC 03</option>
-                    <option value="PC 04">PC 04</option>
-                    <option value="PC 05">PC 05</option>
-                    <option value="PC 06">PC 06</option>
-                    <option value="PC 07">PC 07</option>
-                    <option value="PC 08">PC 08</option>
-                    <option value="PC 09">PC 09</option>
-                    <option value="PC 10">PC 10</option>
-                    <option value="PC 11">PC 11</option>
-                    <option value="PC 12">PC 12</option>
+                <select x-model="nuevoCli.pc" required>
+                    <option value="">Seleccione PC...</option>
+                    <template x-for="pc in pcsDisponibles" :key="pc.id"><option :value="pc.id" x-text="pc.id"></option></template>
                 </select>
 
                 <label>Horas solicitadas:</label>
-                <input type="number" id="horas-cli" required min="1" placeholder="Ej. 2">
+                <input type="number" x-model.number="nuevoCli.horas" required min="1">
                 
                 <label>Acompañante (Gato):</label>
-                <select id="gato-cli" style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; border-radius: 5px;">
-                    <option value="">Ninguno</option>
+                <select x-model="nuevoCli.gato">
+                    <option value="">Sin acompañante</option>
+                    <template x-for="gato in gatosDisponibles" :key="gato.id"><option :value="gato.nombre" x-text="`${gato.nombre} (${gato.tipo})`"></option></template>
                 </select>
 
-                <label>Servicio Adicional (Opcional):</label>
-                <div style="margin-bottom: 15px;">
-                    <div id="tags-servicios-cli" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;"></div>
-                    
-                    <select id="select-add-servicio-cli" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer;">
-                        <option value="" disabled selected hidden>+ Despliega aquí para agregar un servicio...</option>
-                        <option value="Bebida" data-precio="1500">Bebida ($1,500)</option>
-                        <option value="Comida" data-precio="3000">Comida ($3,000)</option>
-                        <option value="Impresión" data-precio="500">Impresión ($500)</option>
-                    </select>
-                </div>
-                
                 <label>Monto a Pagar ($):</label>
-                <input type="number" id="monto-cli" required min="0" placeholder="Calculado automáticamente" style="background-color: #f4f6f8;">
+                <input type="number" :value="montoCalculadoCli" readonly style="background-color: #f4f6f8;">
 
-                <div class="espacio-botones">
-                    <button type="submit">Guardar Registro Temporal</button>
-                </div>
+                <div class="espacio-botones"><button type="submit">Iniciar Sesión Temporal</button></div>
             </form>
         </div>
     </section>
 
-    <!-- 3. Estado de Acompañantes -->
-    <section id="sec-estado-acompanantes" class="contenido-panel seccion-funcional oculto">
+    <!-- ========================================================== -->
+    <!-- SECCIÓN 5: MÓDULO 3 - ESTADO Y HORARIO DE ACOMPAÑANTES     -->
+    <!-- Permite marcar asistencia y editar horarios (10:00 a 02:00)-->
+    <!-- ========================================================== -->
+    <section class="contenido-panel seccion-funcional" x-show="vista === 'sec-estado-acompanantes'" style="display: none;">
         <div class="tarjeta-trabajo">
             <h2>Gestión de Gatos Acompañantes</h2>
-            <table class="tabla-datos">
+            <table class="tabla-datos" style="table-layout: fixed; width: 100%;">
                 <thead>
                     <tr>
-                        <th>Nombre</th>
-                        <th>Tipo/Raza</th>
-                        <th>Llegada</th>
-                        <th>Horario</th>
-                        <th>Estado</th>
-                        <th>Asignación Actual</th>
+                        <th style="width: 10%;">ID</th>
+                        <th style="width: 20%;">Nombre</th>
+                        <th style="width: 20%;">Tipo</th>
+                        <th style="width: 10%;">Llegada</th>
+                        <th style="width: 15%;">Horario</th>
+                        <th style="width: 10%;">Estado</th>
+                        <th style="width: 15%;">Asignación</th>
                     </tr>
                 </thead>
-                <tbody id="cuerpo-gatos">
+                <tbody>
+                    <template x-for="gato in estadoGatos" :key="gato.id">
+                        <tr>
+                            <td x-text="gato.id"></td>
+                            <td><strong x-text="gato.nombre"></strong></td>
+                            <td x-text="gato.tipo"></td>
+                            <td><button type="button" @click="alternarLlegada(gato.id)" :style="`background-color: ${gato.llego === 'Sí' ? '#2ecc71' : '#e74c3c'}; color: white; border: none; padding: 5px 0; width: 45px; border-radius: 5px; cursor: pointer;`" x-text="gato.llego"></button></td>
+                            <td>
+                                <span x-text="gato.horario" style="cursor: pointer; text-decoration: underline;" @click="abrirModalHorario(gato)" title="Click para editar horario"></span>
+                            </td>
+                            <td :style="`color: ${gato.estado === 'Disponible' ? 'green' : (gato.estado === 'Ocupado' ? 'red' : 'gray')}; font-weight: bold;`" x-text="gato.estado"></td>
+                            <td x-text="gato.asignacion"></td>
+                        </tr>
+                    </template>
                 </tbody>
             </table>
         </div>
     </section>
 
-    <!-- 4. Historial -->
-    <section id="sec-historial" class="contenido-panel seccion-funcional oculto">
+    <!-- ========================================================== -->
+    <!-- SECCIÓN 6: MÓDULO 4 - HISTORIAL DEL TURNO Y CIERRES JSON   -->
+    <!-- ========================================================== -->
+    <section class="contenido-panel seccion-funcional" x-show="vista === 'sec-historial'" style="display: none;">
         <div class="tarjeta-trabajo">
-            <h2>Historial de la Sesión</h2>
+            <h2>Clientes Registrados en el Turno Actual</h2>
+            <div x-show="registroClientes.length === 0" class="estado-alerta estado-vacio">Aún no se han registrado sesiones en este turno.</div>
+            <table class="tabla-datos" x-show="registroClientes.length > 0">
+                <thead><tr><th>Cliente</th><th>PC</th><th>Acompañante</th><th>Horas</th><th>Monto</th><th>Estado</th></tr></thead>
+                <tbody>
+                    <template x-for="cliente in registroClientes" :key="cliente.id">
+                        <tr>
+                            <td x-text="cliente.nombre"></td><td x-text="cliente.pc"></td><td x-text="cliente.gato"></td>
+                            <td x-text="cliente.horas + ' hr(s)'"></td><td x-text="'$' + cliente.monto.toLocaleString()"></td>
+                            <td>
+                                <span x-show="cliente.activo" style="color: green; font-weight: bold;">Activo</span>
+                                <span x-show="!cliente.activo" style="color: gray; font-weight: bold;">Finalizado</span>
+                            </td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="tarjeta-trabajo" style="margin-top: 30px;">
+            <h2>Historial de Cierres de Caja (Json_cierre_caja.json)</h2>
             <table class="tabla-datos">
-                <thead>
-                    <tr>
-                        <th>Cliente</th>
-                        <th>PC</th>
-                        <th>Acompañante</th>
-                        <th>Horas</th>
-                        <th>Monto</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody id="cuerpo-historial">
+                <thead><tr><th>ID</th><th>Fecha de Cierre</th><th>Encargado</th><th>Clientes Atendidos</th><th>Ingreso Total</th></tr></thead>
+                <tbody>
+                    <template x-for="cierre in historialCierres" :key="cierre.id">
+                        <tr>
+                            <td x-text="cierre.id"></td>
+                            <td x-text="cierre.fecha"></td>
+                            <td x-text="cierre.correo"></td>
+                            <td x-text="cierre.clientes"></td>
+                            <td x-text="'$' + cierre.total.toLocaleString()"></td>
+                        </tr>
+                    </template>
                 </tbody>
             </table>
         </div>
     </section>
-    
-    
-    <!-- 5. Agregar Servicios y Modificar Acompañante -->
-    <section id="sec-agregar-servicio" class="contenido-panel seccion-funcional oculto">
+
+    <!-- ========================================================== -->
+    <!-- SECCIÓN 7: MÓDULO 5 - MODIFICAR SESIÓN EN CURSO            -->
+    <!-- ========================================================== -->
+    <section class="contenido-panel seccion-funcional" x-show="vista === 'sec-agregar-servicio'" style="display: none;">
         <div class="tarjeta-trabajo">
-            <h2>Agregar servicios adicionales y modificar acompañante</h2>
-            <form id="form-extras" onsubmit="guardarExtra(event)">
+            <h2>Modificar Sesión Activa</h2>
+            <form @submit.prevent="guardarExtra">
                 <label>Seleccionar PC Ocupado:</label>
-                <select id="pc-extra" style="width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; border-radius: 5px;" required>
+                <select x-model="modSesion.pc" required>
+                    <option value="">Seleccione PC ocupado...</option>
+                    <template x-for="pc in pcsOcupados" :key="pc.id"><option :value="pc.id" x-text="`${pc.id} (Cliente: ${pc.cliente})`"></option></template>
                 </select>
 
-                <label>Servicios Adicionales:</label>
-                <div style="margin-bottom: 15px;">
-                    <div id="tags-servicios" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;"></div>
-                    
-                    <!-- Menú desplegable -->
-                    <select id="select-add-servicio" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer;">
-                        <option value="" disabled selected hidden>+ Despliega aquí para agregar un servicio...</option>
-                        <option value="Bebida" data-precio="1500" data-horas="0">Bebida ($1,500)</option>
-                        <option value="Snack" data-precio="800" data-horas="0">Snack ($800)</option>
-                        <option value="Impresión" data-precio="500" data-horas="0">Impresión ($500)</option>
-                        <option value="1 Hora Extra" data-precio="2500" data-horas="1">1 Hora Extra ($2,500)</option>
-                    </select>
-                </div>
-
-                <label>Cambiar Acompañante Principal (Opcional):</label>
-                <select id="cambio-gato-extra">
+                <label>Cambiar Acompañante Principal:</label>
+                <select x-model="modSesion.gatoCambio">
+                    <option value="">Mantener actual / Sin cambios</option>
+                    <option value="QUITAR">Quitar acompañante actual</option>
+                    <template x-for="gato in gatosDisponibles" :key="gato.id"><option :value="gato.nombre" x-text="`${gato.nombre} (${gato.tipo})`"></option></template>
                 </select>
 
-                <label style="margin-top: 20px;">Agregar Acompañantes Extra (Máx. 4, +$2,000 c/u):</label>
-                <div style="margin-bottom: 15px;">
-                    <div id="tags-gatos" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;"></div>
-                    
-                    <select id="select-add-gato" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer;">
-                        <option value="" disabled selected hidden>+ Despliega aquí para elegir acompañantes extra...</option>
-                    </select>
-                </div>
-                
-                <label>Monto extra a cobrar ($):</label>
-                <input type="number" id="monto-extra" min="0" value="0" style="background-color: #f4f6f8;" readonly>
-
-                <div class="espacio-botones">
-                    <button type="submit">Aplicar Modificaciones</button>
-                </div>
+                <div class="espacio-botones"><button type="submit">Aplicar Cambio</button></div>
             </form>
         </div>
     </section>
 
-
-    <!-- 6. Consultar Registro -->
-    <section id="sec-consultar-registro" class="contenido-panel seccion-funcional oculto">
+    <!-- ========================================================== -->
+    <!-- SECCIÓN 8: MÓDULO 6 - CONSULTAR Y AGENDAR RESERVAS         -->
+    <!-- ========================================================== -->
+    <section class="contenido-panel seccion-funcional" x-show="vista === 'sec-consultar-registro'" style="display: none;">
         <div class="tarjeta-trabajo">
-            <h2>Agendar Nueva Reserva</h2>
-            <form id="form-reserva" onsubmit="guardarReserva(event)">
-                <label>Nombre del Cliente:</label>
-                <input type="text" id="nombre-reserva" required placeholder="Nombre completo">
-                
-                <label>Fecha y Hora de la Reserva:</label>
-                <input type="datetime-local" id="fecha-reserva" required>
-                
-                <label>Horas a reservar:</label>
-                <input type="number" id="horas-reserva" required min="1" placeholder="Ej. 2">
-                
-                <label>Monto a Pagar ($):</label>
-                <input type="number" id="monto-reserva" required min="0" placeholder="Calculado automáticamente" style="background-color: #f4f6f8;" readonly>
-
-                <div class="espacio-botones">
-                    <button type="submit">Agendar Reserva</button>
-                </div>
+            <h2>Agendar Reserva Manual</h2>
+            <form @submit.prevent="guardarReserva">
+                <label>Nombre:</label><input type="text" x-model="reservaManual.nombre" required>
+                <label>Fecha y Hora:</label><input type="datetime-local" x-model="reservaManual.fecha" required>
+                <label>Horas:</label><input type="number" x-model.number="reservaManual.horas" required min="1">
+                <div class="espacio-botones"><button type="submit">Agendar en Memoria</button></div>
             </form>
         </div>
-
         <div class="tarjeta-trabajo">
-            <h2>Reservas Pendientes</h2>
+            <h2>Reservas Pendientes (Json_reservas.json)</h2>
             <table class="tabla-datos">
-                <thead>
-                    <tr>
-                        <th>Cliente</th>
-                        <th>Fecha y Hora</th>
-                        <th>Horas</th>
-                        <th>Monto</th>
-                        <th>PC</th>
-                        <th>Acompañante</th>
-                        <th>Acción</th>
-                    </tr>
-                </thead>
-                <tbody id="cuerpo-reservas">
+                <thead><tr><th>Cliente</th><th>Fecha</th><th>Horas</th><th>Monto</th><th>Acción</th></tr></thead>
+                <tbody>
+                    <template x-for="res in reservasPendientes" :key="res.id">
+                        <tr>
+                            <td x-text="res.nombre"></td><td x-text="res.fecha"></td><td x-text="res.horas"></td><td x-text="'$' + res.monto"></td>
+                            <td><button type="button" @click="cancelarReserva(res.id)" style="background-color: #e74c3c;">Cancelar</button></td>
+                        </tr>
+                    </template>
                 </tbody>
             </table>
         </div>
     </section>
 
-    <!-- 7. Cierre de Caja -->
-    <section id="sec-cierre-caja" class="contenido-panel seccion-funcional oculto">
-        <div class="tarjeta-trabajo" style="text-align: left;">
-            <h2>Resumen y Balance del Día</h2>
-            <div style="font-size: 18px; margin: 20px 0;">
-                <p><strong>Total de Clientes Atendidos:</strong> <span id="total-clientes">0</span></p>
-                <p><strong>Recaudación Total:</strong> $<span id="total-ingresos">0</span></p>
-            </div>
-            
-            <div style="margin-top: 60px; text-align: center;">
-                <p style="font-size: 22px; font-weight: bold; margin-bottom: 25px; color: white;">
-                    Cierre de caja <br><br> ⬇️
-                </p>
-                <button class="btn-cierre-caja-final" onclick="alert('Caja cerrada con éxito.')" title="Finalizar Cierre de Caja"></button>
-            </div>
+    <!-- ========================================================== -->
+    <!-- SECCIÓN 9: MÓDULO 7 - RESUMEN Y CIERRE DE CAJA             -->
+    <!-- ========================================================== -->
+    <section class="contenido-panel seccion-funcional" x-show="vista === 'sec-cierre-caja'" style="display: none;">
+        <div class="tarjeta-trabajo" style="text-align: center;">
+            <h2>Resumen del Día</h2>
+            <p><strong>Total Clientes:</strong> <span x-text="totalClientes"></span></p>
+            <p><strong>Recaudación:</strong> $<span x-text="ingresosTotales.toLocaleString()"></span></p>
+            <button type="button" class="btn-cierre-caja-final" @click="finalizarCierreCaja()"></button>
         </div>
     </section>
 
-    <script src="script_encargado.js"></script>
-
-    <!-- MODAL DE EDICIÓN DE HORARIO -->
-    <div id="modal-horario" class="modal-superpuesto oculto">
-        <div class="modal-contenido">
+    <!-- ========================================================== -->
+    <!-- SECCIÓN 10: MODALES DE HORARIO DE GATOS Y PERFIL           -->
+    <!-- ========================================================== -->
+    <div class="modal-superpuesto" x-show="modalHorario.abierto" style="display: none;">
+        <div class="modal-contenido" @click.outside="modalHorario.abierto = false">
             <h3 style="margin-top: 0;">Modificar Horario</h3>
-            <input type="hidden" id="modal-gato-id">
-            
+            <p style="font-size: 12px; color: gray;">Horario operativo: 10:00 a 02:00 hrs.</p>
             <label style="text-align: left; margin-top: 15px;">Hora de Entrada:</label>
-            <input type="time" id="modal-hora-entrada" min="09:00" max="23:59" style="width: 100%; padding: 8px; margin-top: 5px;">
-            
+            <input type="time" x-model="modalHorario.entrada" style="width: 100% !important; padding: 8px; margin-top: 5px;">
             <label style="text-align: left; margin-top: 15px;">Hora de Salida:</label>
-            <input type="time" id="modal-hora-salida" min="09:00" max="23:59" style="width: 100%; padding: 8px; margin-top: 5px;">
-            
+            <input type="time" x-model="modalHorario.salida" style="width: 100% !important; padding: 8px; margin-top: 5px;">
             <div style="display: flex; gap: 10px; margin-top: 25px;">
-                <button onclick="guardarHorario()" style="background-color: #2ecc71; margin: 0;">Confirmar</button>
-                <button onclick="cerrarModalHorario()" class="btn-secundario" style="margin: 0;">Cancelar</button>
+                <button type="button" @click="guardarHorario()" style="background-color: #2ecc71; margin: 0;">Confirmar</button>
+                <button type="button" @click="modalHorario.abierto = false" class="btn-secundario" style="margin: 0;">Cancelar</button>
             </div>
         </div>
     </div>
 
+    <div class="modal-perfil" x-show="modalPerfil" style="display: none;">
+        <div class="modal-perfil-contenido" @click.outside="modalPerfil = false">
+            <h3>Información de la Cuenta</h3>
+            <div class="info-row"><div class="info-label">Rol:</div><div class="info-value" style="font-weight: bold; color: #4b3f72; text-transform: uppercase;" x-text="datosPerfil.rol"></div></div>
+            <div class="info-row">
+                <div class="info-label">Nombre:</div><input type="text" class="info-value" x-model="datosPerfil.nombre" readonly>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Correo:</div><input type="text" class="info-value" x-model="datosPerfil.correo" readonly>
+            </div>
+            <div class="info-row">
+                <div class="info-label">ID Único:</div><input type="text" class="info-value" x-model="datosPerfil.id" readonly>
+            </div>
+            <div style="text-align: right; margin-top: 25px;"><button type="button" class="btn-secundario" style="width: auto !important; padding: 10px 20px;" @click="modalPerfil = false">Cerrar</button></div>
+        </div>
+    </div>
+
+    <script src="script_encargado.js"></script>
 </body>
 </html>
