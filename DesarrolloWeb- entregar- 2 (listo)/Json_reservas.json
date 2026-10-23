@@ -1,0 +1,7 @@
+[
+  { "id": 501, "nombre": "María López", "fecha": "2026-10-21T15:00", "horas": 2, "monto": 5000, "gato": "Estrella", "extras": "Acompañante principal: Estrella", "estado": "Pendiente" },
+  { "id": 502, "nombre": "Carlos Pérez", "fecha": "2026-10-21T16:30", "horas": 3, "monto": 7500, "gato": "Simba", "extras": "Acompañante principal: Simba", "estado": "Pendiente" },
+  { "id": 503, "nombre": "Fernanda Silva", "fecha": "2026-10-21T18:00", "horas": 1, "monto": 2500, "gato": "", "extras": "Sin acompañante", "estado": "Pendiente" },
+  { "id": 504, "nombre": "Javier Morales", "fecha": "2026-10-22T11:00", "horas": 2, "monto": 5000, "gato": "Oreo", "extras": "Acompañante principal: Oreo", "estado": "Pendiente" },
+  { "id": 505, "nombre": "Ana Gómez", "fecha": "2026-10-22T17:00", "horas": 4, "monto": 10000, "gato": "Mochi", "extras": "Acompañante principal: Mochi", "estado": "Pendiente" }
+]
