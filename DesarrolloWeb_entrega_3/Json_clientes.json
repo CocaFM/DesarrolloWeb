@@ -1,0 +1,7 @@
+[
+  { "id": 101, "correo": "cliente@mail.com", "pass": "123", "nombre": "Cliente de Prueba" },
+  { "id": 102, "correo": "maria@mail.com", "pass": "123", "nombre": "María López" },
+  { "id": 103, "correo": "carlos@mail.com", "pass": "123", "nombre": "Carlos Pérez" },
+  { "id": 104, "correo": "fernanda@mail.com", "pass": "123", "nombre": "Fernanda Silva" },
+  { "id": 105, "correo": "javier@mail.com", "pass": "123", "nombre": "Javier Morales" }
+]
