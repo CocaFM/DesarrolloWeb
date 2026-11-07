@@ -143,19 +143,41 @@ document.addEventListener('alpine:init', () => {
             this.inventarioPCs = this.inventarioPCs.filter(p => p.id !== id);
         },
 
-        guardarPrecios() { 
-            alert("Precios actualizados en la memoria de la sesión."); 
-        },
-        
-        agregarCuenta() { 
-            this.cuentasEncargados.push({ 
-                id: 'ENC-' + Date.now().toString().slice(-4), 
-                ...this.nuevaCuenta 
-            }); 
-            this.nuevaCuenta = { nombre: '', correo: '', pass: '' };
-            alert("Encargado registrado en memoria.");
+        // 1. Guardar Precios
+        async guardarPrecios() {
+            try {
+                const respuesta = await fetch('/api/precios', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(this.precios)
+                });
+                
+                if (respuesta.ok) {
+                    alert("Los precios se han actualizado correctamente en MongoDB Atlas.");
+                }
+            } catch (error) {
+                alert("Error al conectar con la base de datos.");
+            }
         },
 
+        // 2. Agregar Encargado
+        async agregarCuenta() {
+            try {
+                const respuesta = await fetch('/api/encargados', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(this.nuevaCuenta)
+                });
+                
+                if (respuesta.ok) {
+                    alert("Encargado registrado en la base de datos.");
+                    // Aquí puedes llamar a una función que haga un fetch('GET', '/api/usuarios') para recargar la tabla
+                    this.nuevaCuenta = { nombre: '', correo: '', pass: '' }; // Limpiar formulario
+                }
+            } catch (error) {
+                alert("Error al registrar el encargado.");
+            }
+        },
         eliminarCuenta(id, nombre) { 
             if (confirm(`¿Eliminar encargado ${nombre}?`)) {
                 this.cuentasEncargados = this.cuentasEncargados.filter(c => c.id !== id); 
