@@ -105,7 +105,131 @@ app.post('/api/registro', async (req, res) => {
 
 // --- Endpoints del sistema CyberCaté ---
 app.get('/api/gatos', async (req, res) => res.json(await db.collection('gatos').find({}).toArray()));
+// --- POST: Agregar un nuevo Gato Acompañante ---
+app.post('/api/gatos', async (req, res) => {
+  try {
+    const { nombre, tipo } = req.body;
+    
+    if (!nombre || !tipo) {
+      return res.status(400).json({ mensaje: 'Faltan datos del gato' });
+    }
+
+    // Generamos un ID automático estilo "CAT-1234"
+    const nuevoId = `CAT-${Date.now().toString().slice(-4)}`;
+
+    await db.collection('gatos').insertOne({
+      id: nuevoId,
+      nombre: nombre,
+      tipo: tipo,
+      llego: "Sí", // Valores por defecto para que funcione el sistema
+      horario: "10:00 - 18:00",
+      estado: "Disponible",
+      asignacion: "Ninguna"
+    });
+
+    res.status(201).json({ mensaje: 'Gato registrado correctamente', id: nuevoId });
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al agregar el gato' });
+  }
+});
+
+// --- PUT: Modificar un Gato Acompañante ---
+app.put('/api/gatos/:id', async (req, res) => {
+  try {
+    const gatoId = req.params.id;
+    const { nombre, tipo } = req.body;
+
+    const resultado = await db.collection('gatos').updateOne(
+      { id: gatoId },
+      { $set: { nombre: nombre, tipo: tipo } }
+    );
+
+    if (resultado.matchedCount === 0) {
+      return res.status(404).json({ mensaje: 'Gato no encontrado' });
+    }
+
+    res.json({ mensaje: 'Gato actualizado correctamente' });
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al actualizar el gato' });
+  }
+});
+
+// --- DELETE: Eliminar un Gato Acompañante ---
+app.delete('/api/gatos/:id', async (req, res) => {
+  try {
+    const gatoId = req.params.id;
+    const resultado = await db.collection('gatos').deleteOne({ id: gatoId });
+    
+    if (resultado.deletedCount === 0) {
+      return res.status(404).json({ mensaje: 'Gato no encontrado' });
+    }
+    
+    res.json({ mensaje: 'Gato eliminado correctamente' });
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al eliminar el gato' });
+  }
+});
 app.get('/api/pcs', async (req, res) => res.json(await db.collection('pcs').find({}).toArray()));
+// --- POST: Agregar un nuevo PC ---
+app.post('/api/pcs', async (req, res) => {
+  try {
+    const { id, estado } = req.body;
+    
+    if (!id || !estado) {
+      return res.status(400).json({ mensaje: 'Faltan datos del equipo' });
+    }
+
+    // Verificar si el ID del PC ya existe en la base de datos
+    const existe = await db.collection('pcs').findOne({ id: id });
+    if (existe) {
+      return res.status(409).json({ mensaje: 'Este ID de PC ya existe' });
+    }
+
+    // Insertar el nuevo equipo (añadimos una categoría estándar por defecto)
+    await db.collection('pcs').insertOne({ id, estado, categoria: "Estándar" });
+    res.status(201).json({ mensaje: 'PC agregado correctamente' });
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al agregar el PC' });
+  }
+});
+
+// --- PATCH: Cambiar el estado de un PC (Disponible <-> Mantenimiento) ---
+app.patch('/api/pcs/:id', async (req, res) => {
+  try {
+    const pcId = req.params.id;
+    const pc = await db.collection('pcs').findOne({ id: pcId });
+    
+    if (!pc) return res.status(404).json({ mensaje: 'PC no encontrado' });
+
+    // Alternar el estado
+    const nuevoEstado = pc.estado === 'Disponible' ? 'Mantenimiento' : 'Disponible';
+    
+    await db.collection('pcs').updateOne(
+      { id: pcId }, 
+      { $set: { estado: nuevoEstado } }
+    );
+    
+    res.json({ mensaje: 'Estado actualizado', nuevoEstado });
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al actualizar el PC' });
+  }
+});
+
+// --- DELETE: Eliminar un PC ---
+app.delete('/api/pcs/:id', async (req, res) => {
+  try {
+    const pcId = req.params.id;
+    const resultado = await db.collection('pcs').deleteOne({ id: pcId });
+    
+    if (resultado.deletedCount === 0) {
+      return res.status(404).json({ mensaje: 'PC no encontrado' });
+    }
+    
+    res.json({ mensaje: 'PC eliminado correctamente' });
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al eliminar el PC' });
+  }
+});
 app.get('/api/precios', async (req, res) => res.json(await db.collection('precios').find({}).toArray()));
 app.get('/api/reservas', async (req, res) => res.json(await db.collection('reservas').find({}).toArray()));
 app.get('/api/cierres', async (req, res) => res.json(await db.collection('cierres_caja').find({}).toArray()));
@@ -140,7 +264,49 @@ app.post('/api/encargados', async (req, res) => {
     res.status(500).json({ mensaje: 'No se pudo registrar el encargado' });
   }
 });
+// --- DELETE: Eliminar una cuenta de Encargado ---
+app.delete('/api/encargados/:id', async (req, res) => {
+  try {
+    const cuentaId = req.params.id;
+    
+    // Eliminamos el documento de la colección global de encargados
+    const resultado = await encargadosCollection.deleteOne({ id: cuentaId });
+    
+    if (resultado.deletedCount === 0) {
+      return res.status(404).json({ mensaje: 'Cuenta no encontrada' });
+    }
+    
+    res.json({ mensaje: 'Cuenta eliminada correctamente' });
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al eliminar la cuenta' });
+  }
+});
+// --- PUT: Modificar una cuenta de Encargado ---
+app.put('/api/encargados/:id', async (req, res) => {
+  try {
+    const cuentaId = req.params.id;
+    const { nombre, correo, pass } = req.body;
 
+    // Actualizamos el documento en MongoDB
+    const resultado = await encargadosCollection.updateOne(
+      { id: cuentaId },
+      { $set: { 
+          nombre: nombre, 
+          correo: correo.trim().toLowerCase(), 
+          pass: pass 
+        } 
+      }
+    );
+
+    if (resultado.matchedCount === 0) {
+      return res.status(404).json({ mensaje: 'Cuenta no encontrada' });
+    }
+
+    res.json({ mensaje: 'Cuenta actualizada correctamente' });
+  } catch (error) {
+    res.status(500).json({ mensaje: 'Error al actualizar la cuenta' });
+  }
+});
 // --- POST: Actualizar Precios (Panel Admin) ---
 app.post('/api/precios', async (req, res) => {
   try {

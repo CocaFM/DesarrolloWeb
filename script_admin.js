@@ -122,27 +122,76 @@ document.addEventListener('alpine:init', () => {
         // ==================================================================
         // 6. FUNCIONES CRUD EN MEMORIA (PCs, PRECIOS, CUENTAS Y GATOS)
         // ==================================================================
-        agregarPC() {
-            if (this.inventarioPCs.find(pc => pc.id.toLowerCase() === this.nuevoPC.id.toLowerCase())) {
-                return alert("Ya existe un equipo con ese ID.");
+        // 1. Agregar un nuevo PC
+        async agregarPC() {
+            try {
+                const respuesta = await fetch('/api/pcs', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: this.nuevoPC.id,
+                        estado: this.nuevoPC.estado
+                    })
+                });
+
+                const data = await respuesta.json();
+
+                if (respuesta.ok) {
+                    alert("PC agregado correctamente a MongoDB Atlas.");
+                    this.nuevoPC = { id: '', estado: 'Disponible' }; // Limpia el formulario
+                    // Aquí puedes llamar a tu función para recargar la tabla, por ejemplo:
+                    // this.cargarDatos(); 
+                } else {
+                    alert(data.mensaje || "Error al agregar PC.");
+                }
+            } catch (error) {
+                alert("Error de conexión con el servidor.");
             }
-            this.inventarioPCs.push({ id: this.nuevoPC.id, estado: this.nuevoPC.estado });
-            this.nuevoPC = { id: '', estado: 'Disponible' };
-            alert("Equipo agregado en memoria (se perderá al recargar).");
         },
 
-        cambiarEstadoPC(id) {
-            const pc = this.inventarioPCs.find(p => p.id === id);
-            if (pc.estado === 'Ocupado') return alert("No puedes modificar un PC en uso.");
-            pc.estado = pc.estado === 'Disponible' ? 'Mantenimiento' : 'Disponible';
+        // 2. Alternar el estado del PC
+        async cambiarEstadoPC(idPC) {
+            try {
+                const respuesta = await fetch(`/api/pcs/${idPC}`, {
+                    method: 'PATCH'
+                });
+
+                if (respuesta.ok) {
+                    // Encuentra el PC localmente y actualiza la vista al instante para no recargar toda la tabla
+                    const pcIndex = this.pcsFiltrados.findIndex(p => p.id === idPC);
+                    if (pcIndex !== -1) {
+                        this.pcsFiltrados[pcIndex].estado = this.pcsFiltrados[pcIndex].estado === 'Disponible' ? 'Mantenimiento' : 'Disponible';
+                    }
+                } else {
+                    alert("No se pudo cambiar el estado.");
+                }
+            } catch (error) {
+                alert("Error de conexión al intentar cambiar el estado.");
+            }
         },
 
-        eliminarPC(id) {
-            const pc = this.inventarioPCs.find(p => p.id === id);
-            if (pc.estado === 'Ocupado') return alert("No puedes eliminar un PC en uso.");
-            this.inventarioPCs = this.inventarioPCs.filter(p => p.id !== id);
-        },
+        // 3. Eliminar el PC
+        async eliminarPC(idPC) {
+            if (!confirm(`¿Estás completamente seguro de que deseas eliminar el equipo ${idPC}?`)) {
+                return;
+            }
 
+            try {
+                const respuesta = await fetch(`/api/pcs/${idPC}`, {
+                    method: 'DELETE'
+                });
+
+                if (respuesta.ok) {
+                    alert("Equipo eliminado de la base de datos.");
+                    // Actualiza la lista localmente para quitarlo de la tabla de inmediato
+                    this.pcsFiltrados = this.pcsFiltrados.filter(p => p.id !== idPC);
+                } else {
+                    alert("No se pudo eliminar el equipo.");
+                }
+            } catch (error) {
+                alert("Error de conexión al intentar eliminar el equipo.");
+            }
+        },
         // 1. Guardar Precios
         async guardarPrecios() {
             try {
@@ -178,44 +227,116 @@ document.addEventListener('alpine:init', () => {
                 alert("Error al registrar el encargado.");
             }
         },
-        eliminarCuenta(id, nombre) { 
-            if (confirm(`¿Eliminar encargado ${nombre}?`)) {
-                this.cuentasEncargados = this.cuentasEncargados.filter(c => c.id !== id); 
+        async eliminarCuenta(idCuenta, nombreCuenta) {
+            // 1. Pedir confirmación al administrador usando el nombre del encargado
+            if (!confirm(`¿Estás completamente seguro de que deseas eliminar la cuenta de "${nombreCuenta}"?`)) {
+                return;
+            }
+
+            try {
+                // 2. Enviar la petición DELETE al backend usando el ID en la URL
+                const respuesta = await fetch(`/api/encargados/${idCuenta}`, {
+                    method: 'DELETE'
+                });
+
+                if (respuesta.ok) {
+                    alert("Cuenta eliminada correctamente de la base de datos.");
+                    
+                    // 3. Actualizar la tabla localmente para que el usuario desaparezca al instante
+                    this.todasLasCuentas = this.todasLasCuentas.filter(cuenta => cuenta.id !== idCuenta);
+                } else {
+                    const data = await respuesta.json();
+                    alert(data.mensaje || "No se pudo eliminar la cuenta.");
+                }
+            } catch (error) {
+                alert("Error de conexión al intentar eliminar la cuenta.");
             }
         },
-
         abrirModalCuenta(cuenta) { 
             this.modal.cuenta.data = { ...cuenta }; 
             this.modal.cuenta.abierto = true; 
         },
 
-        guardarEdicionCuenta() { 
-            const idx = this.cuentasEncargados.findIndex(c => c.id === this.modal.cuenta.data.id);
-            if (idx !== -1) {
-                this.cuentasEncargados[idx] = { ...this.modal.cuenta.data };
-                this.modal.cuenta.abierto = false; 
+        // Envía los datos editados a MongoDB Atlas al presionar "Guardar"
+        async guardarEdicionCuenta() {
+            try {
+                const idCuenta = this.modal.cuenta.data.id;
+                
+                const respuesta = await fetch(`/api/encargados/${idCuenta}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nombre: this.modal.cuenta.data.nombre,
+                        correo: this.modal.cuenta.data.correo,
+                        pass: this.modal.cuenta.data.pass
+                    })
+                });
+
+                if (respuesta.ok) {
+                    alert("Cuenta modificada exitosamente en la base de datos.");
+                    
+                    // Actualizar los datos visuales en la tabla local para reflejar los cambios
+                    const index = this.todasLasCuentas.findIndex(c => c.id === idCuenta);
+                    if (index !== -1) {
+                        this.todasLasCuentas[index].nombre = this.modal.cuenta.data.nombre;
+                        this.todasLasCuentas[index].correo = this.modal.cuenta.data.correo;
+                        // Si la tabla mostrara la contraseña, también se actualizaría aquí
+                    }
+                    
+                    // Cierra la ventana flotante
+                    this.modal.cuenta.abierto = false;
+                } else {
+                    const data = await respuesta.json();
+                    alert(data.mensaje || "Error al modificar la cuenta.");
+                }
+            } catch (error) {
+                alert("Error de conexión al intentar modificar la cuenta.");
             }
         },
         
-        agregarGato() { 
-            const nuevoId = this.inventarioGatos.length > 0 
-                ? Math.max(...this.inventarioGatos.map(g => parseInt(g.id) || 0)) + 1 
-                : 1;
-            this.inventarioGatos.push({ 
-                id: nuevoId, 
-                ...this.nuevoGato, 
-                llego: 'Sí', 
-                estado: 'Disponible', 
-                horario: '10:00 - 18:00', 
-                asignacion: 'Ninguna' 
-            }); 
-            this.nuevoGato = { nombre: '', tipo: '' }; 
-            alert("Acompañante registrado en memoria.");
-        },
+        async agregarGato() {
+            try {
+                const respuesta = await fetch('/api/gatos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nombre: this.nuevoGato.nombre,
+                        tipo: this.nuevoGato.tipo
+                    })
+                });
 
-        eliminarGato(id, nombre) { 
-            if (confirm(`¿Eliminar a ${nombre}?`)) {
-                this.inventarioGatos = this.inventarioGatos.filter(g => g.id !== id); 
+                if (respuesta.ok) {
+                    alert("Acompañante registrado exitosamente en la base de datos.");
+                    this.nuevoGato = { nombre: '', tipo: '' }; // Limpiar formulario
+                    
+                    // Si tienes una función para recargar la tabla, llámala aquí (ej: this.cargarGatos())
+                    // De lo contrario, puedes hacer un window.location.reload() para ver los cambios.
+                } else {
+                    alert("Error al registrar el acompañante.");
+                }
+            } catch (error) {
+                alert("Error de conexión con el servidor.");
+            }
+        },
+        async eliminarGato(idGato, nombreGato) {
+            if (!confirm(`¿Estás seguro de que deseas dar de baja al acompañante "${nombreGato}"?`)) {
+                return;
+            }
+
+            try {
+                const respuesta = await fetch(`/api/gatos/${idGato}`, {
+                    method: 'DELETE'
+                });
+
+                if (respuesta.ok) {
+                    alert("Acompañante eliminado de la base de datos.");
+                    // Actualizar la lista localmente
+                    this.inventarioGatos = this.inventarioGatos.filter(gato => gato.id !== idGato);
+                } else {
+                    alert("No se pudo eliminar al acompañante.");
+                }
+            } catch (error) {
+                alert("Error de conexión al intentar eliminar.");
             }
         },
 
@@ -224,12 +345,36 @@ document.addEventListener('alpine:init', () => {
             this.modal.gato.abierto = true; 
         },
 
-        guardarEdicionGato() { 
-            const idx = this.inventarioGatos.findIndex(g => g.id === this.modal.gato.data.id);
-            if (idx !== -1) {
-                this.inventarioGatos[idx] = { ...this.modal.gato.data };
+        async guardarEdicionGato() {
+            try {
+                const idGato = this.modal.gato.data.id;
+                
+                const respuesta = await fetch(`/api/gatos/${idGato}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nombre: this.modal.gato.data.nombre,
+                        tipo: this.modal.gato.data.tipo
+                    })
+                });
+
+                if (respuesta.ok) {
+                    alert("Datos del acompañante modificados exitosamente.");
+                    
+                    // Actualizar la tabla localmente
+                    const index = this.inventarioGatos.findIndex(g => g.id === idGato);
+                    if (index !== -1) {
+                        this.inventarioGatos[index].nombre = this.modal.gato.data.nombre;
+                        this.inventarioGatos[index].tipo = this.modal.gato.data.tipo;
+                    }
+                    
+                    this.modal.gato.abierto = false; // Cerrar el modal
+                } else {
+                    alert("Error al modificar el acompañante.");
+                }
+            } catch (error) {
+                alert("Error de conexión al intentar modificar.");
             }
-            this.modal.gato.abierto = false; 
-        }
+        },
     }));
 });
