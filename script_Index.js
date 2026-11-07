@@ -13,9 +13,12 @@ document.addEventListener('alpine:init', () => {
         datosCargados: false,
         mensajeError: '',
         
-        // Estado para controlar la imagen a pantalla completa por 3 segundos
+        // Control de la imagen temporal y del juego Snake
         mostrarImagenTemporal: false,
         temporizadorImagen: null,
+        mostrarSnake: false,
+        registroClicsSecretos: [],
+
         verPasswordLogin: false, //Controla el ojo de la clave
         
         loginData: { correo: '', password: '' },
@@ -77,14 +80,49 @@ document.addEventListener('alpine:init', () => {
             this.regData = { nombre: '', correo: '', password: '', confirm: '' }; 
         },
 
-        // Muestra la imagen de golpe durante 2 segundos (2000 ms) y la quita bruscamente
-        activarImagenTemporal() {
+
+        // Registra los clics, reproduce audio/imagen y al 3er clic abre el Snake
+        registrarClicSecreto() {
+            const audio = document.getElementById('audio-secreto');
+            
+            // Reiniciar y reproducir el sonido desde el principio
+            if (audio) {
+                audio.currentTime = 0; 
+                audio.play().catch(e => console.log("El navegador bloqueó el autoplay", e));
+            }
+
+            // 1. Mostrar la imagen de golpe por 2 segundos (2000 ms)
             this.mostrarImagenTemporal = true;
             if (this.temporizadorImagen) clearTimeout(this.temporizadorImagen);
             
             this.temporizadorImagen = setTimeout(() => {
                 this.mostrarImagenTemporal = false;
-            }, 2000); // 2000 milisegundos = 2 segundos exactos
+                if (audio) audio.pause(); // Detener la canción cuando se va la imagen
+            }, 2000);
+
+            // 2. Lógica del conteo para el juego Snake (1:30 minutos = 90000 ms)
+            const ahora = Date.now();
+            this.registroClicsSecretos.push(ahora);
+            
+            this.registroClicsSecretos = this.registroClicsSecretos.filter(t => ahora - t <= 90000);
+            
+            if (this.registroClicsSecretos.length >= 3) {
+                setTimeout(() => {
+                    this.mostrarImagenTemporal = false; 
+                    if (audio) audio.pause(); // Asegurar que el sonido pare si salta el juego
+                    
+                    this.mostrarSnake = true;           
+                    iniciarJuegoSnake();                
+                }, 500); 
+                
+                this.registroClicsSecretos = []; 
+            }
+        },
+
+        // Cierra la ventana del Snake
+        cerrarSnake() {
+            this.mostrarSnake = false;
+            detenerJuegoSnake();
         },
 
         // ==================================================================
@@ -122,35 +160,132 @@ document.addEventListener('alpine:init', () => {
         // Verifica duplicados y agrega el cliente al arreglo temporal.
         // ==================================================================
         async procesarRegistro() {
-            this.mensajeError = '';
             if (this.regData.password !== this.regData.confirm) {
                 this.mensajeError = "Las contraseñas no coinciden.";
                 return;
             }
             
-            const ok = await this.cargarCuentasJSON();
-            if (!ok) return;
+            this.cargando = true;
+            try {
+                // La petición pasa por el proxy inverso de Nginx configurado en el puerto 80
+                const respuesta = await fetch('/api/registro', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nombre: this.regData.nombre,
+                        usuario: this.regData.correo,
+                        clave: this.regData.password
+                    })
+                });
 
-            const correo = this.regData.correo.trim().toLowerCase();
-            const existe = this.listaAdmins.some(u => u.correo.toLowerCase() === correo) ||
-                           this.listaEncargados.some(u => u.correo.toLowerCase() === correo) ||
-                           this.listaClientes.some(u => u.correo.toLowerCase() === correo);
-
-            if (existe) {
-                this.mensajeError = "Este correo ya está registrado.";
-                return;
+                if (respuesta.ok) {
+                    alert("Cuenta creada exitosamente en MongoDB Atlas.");
+                    this.volverLogin();
+                } else {
+                    this.mensajeError = "El correo ya está registrado o hubo un error.";
+                }
+            } catch (error) {
+                this.mensajeError = "Error de conexión con el servidor.";
+            } finally {
+                this.cargando = false;
             }
-
-            // Guarda el nuevo cliente en la memoria de la sesión actual
-            this.listaClientes.push({
-                id: 'CLI-' + Date.now().toString().slice(-4),
-                correo: correo,
-                pass: this.regData.password.trim(),
-                nombre: this.regData.nombre.trim()
-            });
-            
-            alert(`¡Cuenta creada para ${this.regData.nombre}!\n\nNota: El registro se mantiene en memoria y se perderá al recargar la página.`);
-            this.volverLogin();
         }
     }));
 });
+
+/* ========================================================================== */
+/* MOTOR DEL JUEGO SNAKE (Fuera de Alpine para mejor rendimiento)             */
+/* ========================================================================== */
+let bucleJuegoSnake;
+let serpiente, comida, dx, dy;
+let puntuacionSnake = 0;
+const cuadricula = 20;
+
+function iniciarJuegoSnake() {
+    const canvas = document.getElementById('lienzo-snake');
+    if (!canvas) return;
+    
+    // Ocultar pantalla de perder si estaba visible
+    document.getElementById('pantalla-perdiste').style.display = 'none';
+    
+    // Reiniciar puntuación en la interfaz y en memoria
+    puntuacionSnake = 0;
+    document.getElementById('marcador-snake').innerText = 'Manzanas: 0';
+    
+    // Nueva posición central para el tablero de 600x600
+    serpiente = [{ x: 300, y: 300 }, { x: 280, y: 300 }, { x: 260, y: 300 }];
+    dx = cuadricula; 
+    dy = 0;
+    
+    generarComidaSnake(canvas);
+    document.addEventListener('keydown', cambiarDireccionSnake);
+    
+    if (bucleJuegoSnake) clearInterval(bucleJuegoSnake);
+    bucleJuegoSnake = setInterval(() => actualizarJuegoSnake(canvas), 100);
+}
+
+function detenerJuegoSnake() {
+    clearInterval(bucleJuegoSnake);
+    document.removeEventListener('keydown', cambiarDireccionSnake);
+}
+
+function actualizarJuegoSnake(canvas) {
+    const ctx = canvas.getContext('2d');
+    const cabeza = { x: serpiente[0].x + dx, y: serpiente[0].y + dy };
+    serpiente.unshift(cabeza);
+
+    // Si come la manzana
+    if (cabeza.x === comida.x && cabeza.y === comida.y) {
+        puntuacionSnake++;
+        document.getElementById('marcador-snake').innerText = 'Manzanas: ' + puntuacionSnake;
+        generarComidaSnake(canvas);
+    } else {
+        serpiente.pop();
+    }
+
+    // Colisiones con la pared o consigo misma
+    if (cabeza.x < 0 || cabeza.x >= canvas.width || cabeza.y < 0 || cabeza.y >= canvas.height || colisionSerpiente(cabeza)) {
+        detenerJuegoSnake();
+        // Muestra el menú oscuro sobre el juego con el botón de reiniciar
+        document.getElementById('pantalla-perdiste').style.display = 'flex';
+        return;
+    }
+
+    // Dibujar fondo
+    ctx.fillStyle = '#111';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Dibujar manzana
+    ctx.fillStyle = 'red';
+    ctx.fillRect(comida.x, comida.y, cuadricula, cuadricula);
+
+    // Dibujar serpiente
+    ctx.fillStyle = 'lime';
+    serpiente.forEach(parte => {
+        ctx.fillRect(parte.x, parte.y, cuadricula - 1, cuadricula - 1);
+    });
+}
+
+function cambiarDireccionSnake(evento) {
+    const TECLA_IZQ = 37, TECLA_ARR = 38, TECLA_DER = 39, TECLA_ABA = 40;
+    if (evento.keyCode === TECLA_IZQ && dx === 0) { dx = -cuadricula; dy = 0; }
+    if (evento.keyCode === TECLA_ARR && dy === 0) { dx = 0; dy = -cuadricula; }
+    if (evento.keyCode === TECLA_DER && dx === 0) { dx = cuadricula; dy = 0; }
+    if (evento.keyCode === TECLA_ABA && dy === 0) { dx = 0; dy = cuadricula; }
+    
+    if([37, 38, 39, 40].includes(evento.keyCode)) evento.preventDefault();
+}
+
+function generarComidaSnake(canvas) {
+    comida = {
+        x: Math.floor(Math.random() * (canvas.width / cuadricula)) * cuadricula,
+        y: Math.floor(Math.random() * (canvas.height / cuadricula)) * cuadricula
+    };
+}
+
+function colisionSerpiente(cabeza) {
+    for (let i = 1; i < serpiente.length; i++) {
+        if (cabeza.x === serpiente[i].x && cabeza.y === serpiente[i].y) return true;
+    }
+    return false;
+}
