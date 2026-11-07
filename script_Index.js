@@ -160,36 +160,45 @@ document.addEventListener('alpine:init', () => {
         // Verifica duplicados y agrega el cliente al arreglo temporal.
         // ==================================================================
         async procesarRegistro() {
+            // 1. Validar que las contraseñas coincidan
             if (this.regData.password !== this.regData.confirm) {
                 this.mensajeError = "Las contraseñas no coinciden.";
                 return;
             }
             
             this.cargando = true;
+            this.mensajeError = "";
+
             try {
-                // La petición pasa por el proxy inverso de Nginx configurado en el puerto 80
+                // 2. Enviar los datos a la ruta de registro de tu server.js
                 const respuesta = await fetch('/api/registro', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         nombre: this.regData.nombre,
-                        usuario: this.regData.correo,
-                        clave: this.regData.password
+                        usuario: this.regData.correo, 
+                        clave: this.regData.password  
                     })
                 });
 
+                const data = await respuesta.json(); 
+
+                // 3. Verificar si el registro fue exitoso
                 if (respuesta.ok) {
-                    alert("Cuenta creada exitosamente en MongoDB Atlas.");
-                    this.volverLogin();
+                    alert("¡Cuenta creada exitosamente en MongoDB Atlas!");
+                    this.volverLogin(); // Oculta el registro y vuelve al login
+                    // Limpiar los campos del formulario
+                    this.regData = { nombre: '', correo: '', password: '', confirm: '' };
                 } else {
-                    this.mensajeError = "El correo ya está registrado o hubo un error.";
+                    
+                    this.mensajeError = data.mensaje || "Error al registrar el usuario.";
                 }
             } catch (error) {
                 this.mensajeError = "Error de conexión con el servidor.";
             } finally {
                 this.cargando = false;
             }
-        }
+        },
     }));
 });
 
