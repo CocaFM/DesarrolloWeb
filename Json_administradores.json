@@ -1,0 +1,7 @@
+[
+  { "id": "ADM-01", "correo": "admin0@mail.com", "pass": "123", "nombre": "Admin Cero", "master": true },
+  { "id": "ADM-02", "correo": "admin@mail.com", "pass": "123", "nombre": "Administrador General", "master": false },
+  { "id": "ADM-03", "correo": "soporte@mail.com", "pass": "123", "nombre": "Soporte Técnico", "master": false },
+  { "id": "ADM-04", "correo": "gerencia@mail.com", "pass": "123", "nombre": "Gerencia CyberCaté", "master": true },
+  { "id": "ADM-05", "correo": "auditor@mail.com", "pass": "123", "nombre": "Auditor Interno", "master": false }
+]
